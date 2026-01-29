@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 import 'signup_screen.dart';
-import 'main_navigation_screen.dart';
+import 'zoom_drawer_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,16 +28,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const MainNavigationScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const ZoomDrawerScreen()),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -56,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 40),
 
-                // School Icon (sida sawirka)
+                // School Icon (as in the design)
                 Center(
                   child: Container(
                     height: 70,
@@ -73,11 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     child: const Center(
-                      child: Icon(
-                        Icons.school,
-                        color: Colors.white,
-                        size: 36,
-                      ),
+                      child: Icon(Icons.school, color: Colors.white, size: 36),
                     ),
                   ),
                 ),
@@ -88,19 +82,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text(
                   "University",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
                 const Text(
                   "Sign in to access your dashboard",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
 
                 const SizedBox(height: 32),
@@ -147,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: true,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.lock_outline),
-                    hintText: "••••••••",
+                    hintText: "Please enter your password",
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -191,15 +179,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     child: auth.isLoading
-                        ? const CircularProgressIndicator(
-                            color: Colors.white,
-                          )
+                        ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Login",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                   ),
                 ),
@@ -212,10 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Expanded(child: Divider()),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        "OR",
-                        style: TextStyle(color: Colors.grey),
-                      ),
+                      child: Text("OR", style: TextStyle(color: Colors.grey)),
                     ),
                     Expanded(child: Divider()),
                   ],

@@ -8,8 +8,8 @@ class AppConstants {
     if (kIsWeb) {
       return 'http://localhost:5000/api';
     } else if (defaultTargetPlatform == TargetPlatform.android) {
-      // Use the local IP address of the machine
-      return 'http://192.168.100.42:5000/api';
+      // Use 10.0.2.2 to point to host machine's localhost from Android emulator
+      return 'http://10.0.2.2:5000/api';
     } else {
       return 'http://localhost:5000/api';
     }

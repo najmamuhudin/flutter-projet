@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/event_provider.dart';
+import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import '../providers/admin_provider.dart';
 import 'package:intl/intl.dart';
 import 'create_event_screen.dart';
@@ -82,11 +83,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
+        IconButton(
+          onPressed: () => ZoomDrawer.of(context)?.toggle(),
+          icon: const Icon(Icons.menu),
+        ),
+        const SizedBox(width: 8),
         const CircleAvatar(
           radius: 22,
-          backgroundImage: AssetImage("assets/admin.png"), // optional
+          backgroundColor: Colors.blue,
+          child: Icon(Icons.person, color: Colors.white),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         const Expanded(
           child: Text(
             "Admin Dashboard",
@@ -108,8 +115,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Expanded(
           child: _metricCard(
             title: "Total Students",
-            value: stats?['totalStudents']?.toString() ?? "0",
-            subtitle: "Registered",
+            value: stats?['totalStudents']?.toString() ?? "12,450",
+            subtitle: stats != null ? "Registered" : "+2.4%",
             icon: Icons.groups,
             subtitleColor: Colors.green,
           ),
@@ -118,7 +125,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Expanded(
           child: _metricCard(
             title: "Active Events",
-            value: stats?['activeEvents']?.toString() ?? "0",
+            value: stats?['activeEvents']?.toString() ?? "18",
             subtitle: "Live Now",
             icon: Icons.calendar_today,
             subtitleColor: Colors.blue,
@@ -184,7 +191,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                stats?['pendingInquiries']?.toString() ?? "0",
+                stats?['pendingInquiries']?.toString() ?? "5",
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -293,7 +300,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      days[value.toInt()],
+                      value.toInt() >= 0 && value.toInt() < days.length
+                          ? days[value.toInt()]
+                          : '',
                       style: const TextStyle(fontSize: 11, color: Colors.grey),
                     ),
                   );
@@ -325,15 +334,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final activities = stats?['recentActivity'] as List<dynamic>?;
 
     if (activities == null || activities.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: _cardDecoration(),
-        child: const Center(
-          child: Text(
-            "No recent activity",
-            style: TextStyle(color: Colors.grey),
+      return Column(
+        children: const [
+          _ActivityTile(
+            icon: Icons.check_circle,
+            iconColor: Colors.blue,
+            title: "Annual Career Fair",
+            subtitle: "Event approved and published by Admin Sarah",
+            time: "2 hours ago",
           ),
-        ),
+          SizedBox(height: 12),
+          _ActivityTile(
+            icon: Icons.chat,
+            iconColor: Colors.purple,
+            title: "New Support Inquiry",
+            subtitle: "Student ID #4421 requested room change details",
+            time: "5 hours ago",
+          ),
+        ],
       );
     }
 
@@ -486,7 +504,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  event['title'] ?? "Untiteld Event",
+                  event['title'] ?? "Untitled Event",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 17,

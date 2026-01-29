@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'dashboard_screen.dart';
+import 'home_screen.dart';
 import 'inquiries_screen.dart';
-import 'support_screen.dart';
-import 'login_screen.dart';
-import 'profile_screen.dart'; // Import the new screen
+import 'profile_screen.dart';
+import 'announcements_screen.dart';
+import 'events_list_screen.dart';
+import '../providers/navigation_provider.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -15,10 +17,10 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _currentIndex = 0;
-
   @override
   Widget build(BuildContext context) {
+    final navProvider = Provider.of<NavigationProvider>(context);
+    final int currentIndex = navProvider.currentIndex;
     final user = Provider.of<AuthProvider>(context).user;
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -32,12 +34,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             const DashboardScreen(),
             const InquiriesScreen(),
             const Center(child: Text("Events Management")),
-            const ProfileScreen(), // Integrated Profile Screen
+            const ProfileScreen(),
           ]
         : [
-            const DashboardScreen(), // Student dashboard shows events list
-            const SupportScreen(),
-            const ProfileScreen(), // Integrated Profile Screen
+            const HomeScreen(),
+            const AnnouncementsScreen(),
+            const EventsListScreen(),
+            const ProfileScreen(),
           ];
 
     final List<BottomNavigationBarItem> navItems = isAdmin
@@ -58,12 +61,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ]
         : const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_outlined),
+              icon: Icon(Icons.home_outlined),
               label: "Home",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble_outline),
-              label: "Support",
+              icon: Icon(Icons.campaign_outlined),
+              label: "Updates",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.event_note_outlined),
+              label: "Events",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
@@ -71,42 +78,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
           ];
 
-    if (_currentIndex >= navItems.length) {
-      _currentIndex = 0;
+    if (currentIndex >= navItems.length) {
+      navProvider.setIndex(0);
+      return const SizedBox();
     }
 
-    // Determine if we should show the AppBar (Hide it on Profile tab)
-    final bool isProfileTab = _currentIndex == navItems.length - 1;
-
     return Scaffold(
-      appBar: isProfileTab
-          ? null
-          : AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              title: Text(
-                isAdmin ? "Admin Console" : "Campus Connect",
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.logout, color: Colors.red),
-                  onPressed: () {
-                    Provider.of<AuthProvider>(context, listen: false).logout();
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    );
-                  },
-                ),
-              ],
-            ),
-      body: screens[_currentIndex],
+      body: screens[currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        currentIndex: currentIndex,
+        onTap: (index) => navProvider.setIndex(index),
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: Colors.blue,

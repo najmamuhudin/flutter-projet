@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/event_provider.dart';
-import '../utils/constants.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -253,7 +252,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           context: context,
           initialTime: TimeOfDay.now(),
         );
-        if (time != null) {
+        if (time != null && mounted) {
           _timeController.text = time.format(context);
         }
       },
@@ -324,15 +323,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     setState(() => _isSubmitting = true);
 
     try {
+      final eventProvider = Provider.of<EventProvider>(context, listen: false);
+
       String? imageUrl;
       if (_image != null) {
-        imageUrl = await Provider.of<EventProvider>(
-          context,
-          listen: false,
-        ).uploadImage(_image!.path);
+        imageUrl = await eventProvider.uploadImage(_image!.path);
       }
 
-      await Provider.of<EventProvider>(context, listen: false).addEvent({
+      if (!mounted) return;
+
+      await eventProvider.addEvent({
         "title": _titleController.text,
         "category": _category,
         "date": _dateController.text,

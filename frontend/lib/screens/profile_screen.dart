@@ -15,6 +15,8 @@ class ProfileScreen extends StatelessWidget {
     final String email = user['email'] ?? 'email@university.edu';
     final String role = user['role'] ?? 'Student';
     final String studentId = user['studentId'] ?? 'ID Not Set';
+    final String department = user['department'] ?? 'General';
+    final String year = user['year'] ?? 'Freshman';
     final bool isAdmin = role == 'admin';
 
     return Scaffold(
@@ -34,8 +36,15 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildInfoCard([
                     _infoTile(Icons.email_outlined, "Email", email),
-                    if (!isAdmin)
+                    if (!isAdmin) ...[
                       _infoTile(Icons.badge_outlined, "Student ID", studentId),
+                      _infoTile(
+                        Icons.school_outlined,
+                        "Department",
+                        department,
+                      ),
+                      _infoTile(Icons.calendar_today_outlined, "Year", year),
+                    ],
                     _infoTile(
                       Icons.security_outlined,
                       "Role",
@@ -110,7 +119,7 @@ class ProfileScreen extends StatelessWidget {
                   radius: 50,
                   backgroundColor: Colors.white,
                   child: Text(
-                    name.substring(0, 1).toUpperCase(),
+                    name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?',
                     style: const TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,

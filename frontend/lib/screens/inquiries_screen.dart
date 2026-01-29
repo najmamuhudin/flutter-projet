@@ -70,11 +70,13 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
                   itemCount: filtered.length,
                   itemBuilder: (context, index) {
                     final item = filtered[index];
-                    final date = DateTime.parse(item['createdAt']);
+                    final date =
+                        DateTime.tryParse(item['createdAt'] ?? '') ??
+                        DateTime.now();
                     final timeStr = DateFormat('MMM d, h:mm a').format(date);
 
                     return _inquiryTile(
-                      name: item['user']['name'] ?? 'Unknown',
+                      name: item['user']?['name'] ?? 'Unknown',
                       time: timeStr,
                       subject: item['subject'] ?? 'No Subject',
                       message: item['message'] ?? '',
@@ -240,7 +242,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
               radius: 26,
               backgroundColor: Colors.blue.withOpacity(0.1),
               child: Text(
-                name[0],
+                name.isNotEmpty ? name[0].toUpperCase() : '?',
                 style: const TextStyle(
                   color: Colors.blue,
                   fontWeight: FontWeight.bold,

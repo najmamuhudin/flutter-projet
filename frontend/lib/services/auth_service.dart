@@ -4,7 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
 
 class AuthService {
-  Future<Map<String, dynamic>> register(String name, String email, String password, String studentId) async {
+  Future<Map<String, dynamic>> register(
+    String name,
+    String email,
+    String password,
+    String studentId,
+  ) async {
     final response = await http.post(
       Uri.parse('${AppConstants.baseUrl}/users/register'),
       headers: <String, String>{
@@ -21,7 +26,9 @@ class AuthService {
     if (response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
-      throw Exception(jsonDecode(response.body)['message'] ?? 'Failed to register');
+      throw Exception(
+        jsonDecode(response.body)['message'] ?? 'Failed to register',
+      );
     }
   }
 
@@ -31,10 +38,7 @@ class AuthService {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{
-        'email': email,
-        'password': password,
-      }),
+      body: jsonEncode(<String, String>{'email': email, 'password': password}),
     );
 
     if (response.statusCode == 200) {
@@ -45,7 +49,9 @@ class AuthService {
       await prefs.setString('user', jsonEncode(data));
       return data;
     } else {
-      throw Exception(jsonDecode(response.body)['message'] ?? 'Failed to login');
+      throw Exception(
+        jsonDecode(response.body)['message'] ?? 'Failed to login',
+      );
     }
   }
 
