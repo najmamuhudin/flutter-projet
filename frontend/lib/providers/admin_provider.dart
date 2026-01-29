@@ -6,11 +6,26 @@ class AdminProvider with ChangeNotifier {
 
   List<dynamic> _announcements = [];
   List<dynamic> _inquiries = [];
+  Map<String, dynamic>? _stats;
   bool _isLoading = false;
 
   List<dynamic> get announcements => _announcements;
   List<dynamic> get inquiries => _inquiries;
+  Map<String, dynamic>? get stats => _stats;
   bool get isLoading => _isLoading;
+
+  Future<void> fetchStats() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _stats = await _adminService.getDashboardStats();
+    } catch (e) {
+      print(e);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> fetchAnnouncements() async {
     _isLoading = true;

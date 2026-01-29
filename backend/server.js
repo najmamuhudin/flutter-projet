@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -18,11 +19,15 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Serve static files
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
 // Routes
 app.use('/api/users', require('./routes/authRoutes'));
 app.use('/api/events', require('./routes/eventRoutes'));
 app.use('/api/announcements', require('./routes/announcementRoutes'));
 app.use('/api/inquiries', require('./routes/inquiryRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Basic route
 app.get('/', (req, res) => {

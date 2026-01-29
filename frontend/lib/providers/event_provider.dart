@@ -32,4 +32,8 @@ class EventProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<String?> uploadImage(String filePath) async {
+    return await _eventService.uploadImage(filePath);
+  }
 }

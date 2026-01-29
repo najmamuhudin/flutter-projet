@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/event_provider.dart';
 import '../utils/constants.dart';
 import 'package:dotted_border/dotted_border.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen({super.key});
@@ -25,6 +26,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   bool _pushNotification = true;
   bool _enableRSVP = false;
   bool _isSubmitting = false;
+  XFile? _image;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? selected = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
+    if (selected != null) {
+      setState(() => _image = selected);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,10 +115,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         onPressed: () => Navigator.pop(context),
         child: const Text("Cancel"),
       ),
-      title: const Text(
-        "Create Event",
-        style: TextStyle(color: Colors.black),
-      ),
+      title: const Text("Create Event", style: TextStyle(color: Colors.black)),
       centerTitle: true,
       actions: [
         TextButton(
@@ -122,48 +131,62 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
   // ================= UPLOAD POSTER =================
   Widget _uploadPoster() {
-    return DottedBorder(
-      dashPattern: const [6, 4],
-      color: Colors.grey.shade400,
-      borderType: BorderType.RRect,
-      radius: const Radius.circular(16),
-      child: Container(
-        height: 200,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.blue.withOpacity(0.1),
-              child: const Icon(Icons.camera_alt, color: Colors.blue),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              "Upload Event Poster",
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              "Recommended size: 1200 x 630px",
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-            ),
-            const SizedBox(height: 14),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+    return GestureDetector(
+      onTap: _pickImage,
+      child: DottedBorder(
+        dashPattern: const [6, 4],
+        color: Colors.grey.shade400,
+        borderType: BorderType.RRect,
+        radius: const Radius.circular(16),
+        child: Container(
+          height: 200,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            image: _image != null
+                ? DecorationImage(
+                    image: FileImage(File(_image!.path)),
+                    fit: BoxFit.cover,
+                  )
+                : null,
+          ),
+          child: _image != null
+              ? null
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.blue.withOpacity(0.1),
+                      child: const Icon(Icons.camera_alt, color: Colors.blue),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "Upload Event Poster",
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Recommended size: 1200 x 630px",
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                    const SizedBox(height: 14),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: _pickImage,
+                      child: const Text(
+                        "Add Image",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              onPressed: () {},
-              child: const Text("Add Image"),
-            ),
-          ],
         ),
       ),
     );
@@ -213,8 +236,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           lastDate: DateTime(2030),
         );
         if (date != null) {
-          _dateController.text =
-              "${date.month}/${date.day}/${date.year}";
+          _dateController.text = "${date.month}/${date.day}/${date.year}";
         }
       },
     );
@@ -301,28 +323,47 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
     setState(() => _isSubmitting = true);
 
-    await Provider.of<EventProvider>(context, listen: false).addEvent({
-      "title": _titleController.text,
-      "category": _category,
-      "date": _dateController.text,
-      "time": _timeController.text,
-      "location": _locationController.text,
-      "description": _descriptionController.text,
-      "pushNotification": _pushNotification,
-      "rsvp": _enableRSVP,
-    });
+    try {
+      String? imageUrl;
+      if (_image != null) {
+        imageUrl = await Provider.of<EventProvider>(
+          context,
+          listen: false,
+        ).uploadImage(_image!.path);
+      }
 
-    if (mounted) Navigator.pop(context);
+      await Provider.of<EventProvider>(context, listen: false).addEvent({
+        "title": _titleController.text,
+        "category": _category,
+        "date": _dateController.text,
+        "time": _timeController.text,
+        "location": _locationController.text,
+        "description": _descriptionController.text,
+        "pushNotification": _pushNotification,
+        "rsvp": _enableRSVP,
+        "imageUrl": imageUrl,
+      });
+
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   // ================= HELPERS =================
   Widget _section(String t) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Text(
-          t,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Text(
+      t,
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    ),
+  );
 
   Widget _label(String t) =>
       Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t));

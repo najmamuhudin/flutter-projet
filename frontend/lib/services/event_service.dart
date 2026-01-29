@@ -41,4 +41,26 @@ class EventService {
       );
     }
   }
+
+  Future<String?> uploadImage(String filePath) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('${AppConstants.baseUrl}/events/upload'),
+    );
+    request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(await http.MultipartFile.fromPath('image', filePath));
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['imageUrl'];
+    } else {
+      throw Exception('Failed to upload image');
+    }
+  }
 }

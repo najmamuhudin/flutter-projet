@@ -64,6 +64,26 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> socialLogin(String provider) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      // Logic for social login would go here (e.g., Firebase Auth or dedicated OAuth)
+      await Future.delayed(const Duration(seconds: 2)); // Simulate network call
+
+      // For demo purposes, we can't fully implement OAuth without API keys/setup,
+      // but we show the UI interaction is wired up.
+      throw Exception(
+        "$provider login is not configured yet. Please use email/password.",
+      );
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> logout() async {
     await _authService.logout();
     _user = null;

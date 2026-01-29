@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 import 'signup_screen.dart';
@@ -24,16 +25,19 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         listen: false,
       ).login(_emailController.text.trim(), _passwordController.text.trim());
+
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
+          MaterialPageRoute(
+            builder: (context) => const MainNavigationScreen(),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
       }
     }
   }
@@ -48,44 +52,62 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Icon
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    color: AppConstants.primaryColor,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(
-                    Icons.school,
-                    color: Colors.white,
-                    size: 40,
+                const SizedBox(height: 40),
+
+                // School Icon (sida sawirka)
+                Center(
+                  child: Container(
+                    height: 70,
+                    width: 70,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A73E8),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.12),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.school,
+                        color: Colors.white,
+                        size: 36,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 24),
+
+                const SizedBox(height: 20),
+
                 // Title
                 const Text(
-                  'University Connect',
+                  "University",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
-                    color: AppConstants.textColor,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 const Text(
-                  'Sign in to access your dashboard',
+                  "Sign in to access your dashboard",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppConstants.secondaryColor),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
                 ),
+
                 const SizedBox(height: 32),
+
                 // Email
                 const Text(
-                  'Email Address',
+                  "Email",
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
@@ -93,28 +115,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.email_outlined),
-                    hintText: 'student@university.edu',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
+                    hintText: "student@gmail.com",
                     filled: true,
                     fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter email';
+                    if (value == null || value.isEmpty) {
+                      return "Please enter your email";
+                    }
                     return null;
                   },
                 ),
+
                 const SizedBox(height: 16),
+
                 // Password
                 const Text(
-                  'Password',
+                  "Password",
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
@@ -123,102 +147,113 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: true,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.lock_outline),
-                    hintText: '........',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
+                    hintText: "••••••••",
                     filled: true,
                     fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter password';
+                    if (value == null || value.isEmpty) {
+                      return "Please enter your password";
+                    }
                     return null;
                   },
                 ),
+
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {},
                     child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: AppConstants.primaryColor),
+                      "Forgot Password?",
+                      style: TextStyle(color: Color(0xFF1A73E8)),
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 16),
+
                 // Login Button
                 Consumer<AuthProvider>(
                   builder: (context, auth, _) => ElevatedButton(
                     onPressed: auth.isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppConstants.primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: const Color(0xFF1A73E8),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: auth.isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
                         : const Text(
-                            'Login',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
                           ),
                   ),
                 ),
-                const SizedBox(height: 16),
+
+                const SizedBox(height: 20),
+
+                // OR Divider
                 const Row(
                   children: [
                     Expanded(child: Divider()),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('OR', style: TextStyle(color: Colors.grey)),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        "OR",
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                     Expanded(child: Divider()),
                   ],
                 ),
-                const SizedBox(height: 16),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    // In a real app this might toggle a mode or go to a specific admin login page,
-                    // but here we likely just use the same login logic and the backend handles the role.
-                    // The UI shows it as a separate button, so maybe we just pre-fill or focus?
-                    // For now, let's keep it as an alternative or just a visual element.
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "Use same login form, system detects Admin role automatically.",
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.admin_panel_settings,
-                    color: Colors.black,
-                  ),
-                  label: const Text(
-                    'Admin Login',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.grey),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
+
+                const SizedBox(height: 20),
+
+                // Social Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account?"),
+                    _socialButton(
+                      icon: FontAwesomeIcons.google,
+                      color: const Color(0xFFDB4437),
+                      onTap: () => _handleSocialLogin("Google"),
+                    ),
+                    const SizedBox(width: 20),
+                    _socialButton(
+                      icon: FontAwesomeIcons.facebookF,
+                      color: const Color(0xFF4267B2),
+                      onTap: () => _handleSocialLogin("Facebook"),
+                    ),
+                    const SizedBox(width: 20),
+                    _socialButton(
+                      icon: FontAwesomeIcons.apple,
+                      color: Colors.black,
+                      onTap: () => _handleSocialLogin("Apple"),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 32),
+
+                // Create Account
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? "),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
@@ -228,8 +263,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: const Text(
-                        'Create an Account',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        "Create an Account",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A73E8),
+                        ),
                       ),
                     ),
                   ],
@@ -240,5 +278,51 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Widget _socialButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        height: 44,
+        width: 44,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: color, size: 20),
+      ),
+    );
+  }
+
+  void _handleSocialLogin(String provider) async {
+    try {
+      await Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      ).socialLogin(provider);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
   }
 }

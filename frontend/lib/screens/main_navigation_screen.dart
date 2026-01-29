@@ -5,6 +5,7 @@ import 'dashboard_screen.dart';
 import 'inquiries_screen.dart';
 import 'support_screen.dart';
 import 'login_screen.dart';
+import 'profile_screen.dart'; // Import the new screen
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -31,12 +32,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             const DashboardScreen(),
             const InquiriesScreen(),
             const Center(child: Text("Events Management")),
-            const Center(child: Text("Profile")),
+            const ProfileScreen(), // Integrated Profile Screen
           ]
         : [
             const DashboardScreen(), // Student dashboard shows events list
             const SupportScreen(),
-            const Center(child: Text("Profile")),
+            const ProfileScreen(), // Integrated Profile Screen
           ];
 
     final List<BottomNavigationBarItem> navItems = isAdmin
@@ -74,29 +75,34 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       _currentIndex = 0;
     }
 
+    // Determine if we should show the AppBar (Hide it on Profile tab)
+    final bool isProfileTab = _currentIndex == navItems.length - 1;
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          isAdmin ? "Admin Console" : "Campus Connect",
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red),
-            onPressed: () {
-              Provider.of<AuthProvider>(context, listen: false).logout();
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: isProfileTab
+          ? null
+          : AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              title: Text(
+                isAdmin ? "Admin Console" : "Campus Connect",
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout, color: Colors.red),
+                  onPressed: () {
+                    Provider.of<AuthProvider>(context, listen: false).logout();
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    );
+                  },
+                ),
+              ],
+            ),
       body: screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

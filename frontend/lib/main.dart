@@ -33,10 +33,9 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
           textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
-          inputDecorationTheme: const InputDecorationTheme(
-            border: OutlineInputBorder(),
-          ),
+          scaffoldBackgroundColor: const Color(0xFFF8FAFC),
         ),
+        themeMode: ThemeMode.light,
         home: const LoginScreen(),
       ),
     );

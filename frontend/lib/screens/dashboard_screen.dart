@@ -3,6 +3,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/event_provider.dart';
+import '../providers/admin_provider.dart';
+import 'package:intl/intl.dart';
 import 'create_event_screen.dart';
 import 'post_announcement_screen.dart';
 
@@ -19,6 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<EventProvider>(context, listen: false).fetchEvents();
+      Provider.of<AdminProvider>(context, listen: false).fetchStats();
     });
   }
 
@@ -33,37 +36,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return _buildStudentDashboard(context, user);
     }
 
+    final adminProvider = Provider.of<AdminProvider>(context);
+    final stats = adminProvider.stats;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FB),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
+        child: RefreshIndicator(
+          onRefresh: () => adminProvider.fetchStats(),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 24),
 
-            _sectionTitle("Key Metrics"),
-            const SizedBox(height: 12),
-            _buildMetrics(),
+              _sectionTitle("Key Metrics"),
+              const SizedBox(height: 12),
+              _buildMetrics(stats),
 
-            const SizedBox(height: 16),
-            _buildPendingCard(),
+              const SizedBox(height: 16),
+              _buildPendingCard(stats),
 
-            const SizedBox(height: 24),
-            _sectionTitle("Quick Actions"),
-            const SizedBox(height: 12),
-            _buildQuickActions(context),
+              const SizedBox(height: 24),
+              _sectionTitle("Quick Actions"),
+              const SizedBox(height: 12),
+              _buildQuickActions(context),
 
-            const SizedBox(height: 24),
-            _sectionTitle("Engagement Overview"),
-            const SizedBox(height: 12),
-            _buildChart(),
+              const SizedBox(height: 24),
+              _sectionTitle("Engagement Overview"),
+              const SizedBox(height: 12),
+              _buildChart(),
 
-            const SizedBox(height: 24),
-            _sectionTitle("Recent Activity"),
-            const SizedBox(height: 12),
-            _buildRecentActivity(),
-          ],
+              const SizedBox(height: 24),
+              _sectionTitle("Recent Activity"),
+              const SizedBox(height: 12),
+              _buildRecentActivity(stats),
+            ],
+          ),
         ),
       ),
     );
@@ -93,14 +102,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ================= METRICS =================
-  Widget _buildMetrics() {
+  Widget _buildMetrics(Map<String, dynamic>? stats) {
     return Row(
       children: [
         Expanded(
           child: _metricCard(
             title: "Total Students",
-            value: "12,450",
-            subtitle: "+2.4%",
+            value: stats?['totalStudents']?.toString() ?? "0",
+            subtitle: "Registered",
             icon: Icons.groups,
             subtitleColor: Colors.green,
           ),
@@ -109,7 +118,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Expanded(
           child: _metricCard(
             title: "Active Events",
-            value: "18",
+            value: stats?['activeEvents']?.toString() ?? "0",
             subtitle: "Live Now",
             icon: Icons.calendar_today,
             subtitleColor: Colors.blue,
@@ -159,21 +168,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ================= PENDING =================
-  Widget _buildPendingCard() {
+  Widget _buildPendingCard(Map<String, dynamic>? stats) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: _cardDecoration(),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Pending Inquiries", style: TextStyle(color: Colors.grey)),
-              SizedBox(height: 8),
+              const Text(
+                "Pending Inquiries",
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
               Text(
-                "5",
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                stats?['pendingInquiries']?.toString() ?? "0",
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -306,26 +321,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ================= RECENT ACTIVITY =================
-  Widget _buildRecentActivity() {
+  Widget _buildRecentActivity(Map<String, dynamic>? stats) {
+    final activities = stats?['recentActivity'] as List<dynamic>?;
+
+    if (activities == null || activities.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: _cardDecoration(),
+        child: const Center(
+          child: Text(
+            "No recent activity",
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
     return Column(
-      children: const [
-        _ActivityTile(
-          icon: Icons.check_circle,
-          iconColor: Colors.blue,
-          title: "Annual Career Fair",
-          subtitle: "Event approved and published by Admin Sarah",
-          time: "2 hours ago",
-        ),
-        SizedBox(height: 12),
-        _ActivityTile(
-          icon: Icons.chat,
-          iconColor: Colors.purple,
-          title: "New Support Inquiry",
-          subtitle: "Student ID #4421 requested room change details",
-          time: "5 hours ago",
-        ),
-      ],
+      children: activities.map((activity) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: _ActivityTile(
+            icon: activity['icon'] == 'event' ? Icons.check_circle : Icons.chat,
+            iconColor: activity['icon'] == 'event'
+                ? Colors.blue
+                : Colors.purple,
+            title: activity['title'] ?? "Untitled",
+            subtitle: activity['subtitle'] ?? "",
+            time: _formatTime(activity['time']),
+          ),
+        );
+      }).toList(),
     );
+  }
+
+  String _formatTime(String? timeStr) {
+    if (timeStr == null) return "";
+    try {
+      final dateTime = DateTime.parse(timeStr);
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inMinutes < 60) {
+        return "${difference.inMinutes} minutes ago";
+      } else if (difference.inHours < 24) {
+        return "${difference.inHours} hours ago";
+      } else {
+        return DateFormat('MMM d, h:mm a').format(dateTime);
+      }
+    } catch (e) {
+      return timeStr;
+    }
   }
 
   // ================= STUDENT DASHBOARD (unchanged logic, styled) =================

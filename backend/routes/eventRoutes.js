@@ -7,8 +7,15 @@ const {
     deleteEvent,
 } = require('../controllers/eventController');
 const { protect, admin } = require('../middleware/authMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 
 router.route('/').get(getEvents).post(protect, admin, createEvent);
 router.route('/:id').put(protect, admin, updateEvent).delete(protect, admin, deleteEvent);
+
+router.post('/upload', protect, admin, upload.single('image'), (req, res) => {
+    res.send({
+        imageUrl: `/${req.file.path}`.replace(/\\/g, '/')
+    });
+});
 
 module.exports = router;
