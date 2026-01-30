@@ -33,7 +33,7 @@ class EventProvider with ChangeNotifier {
     }
   }
 
-  Future<String?> uploadImage(String filePath) async {
-    return await _eventService.uploadImage(filePath);
+  Future<String?> uploadImage(List<int> bytes, String filename) async {
+    return await _eventService.uploadImage(bytes, filename);
   }
 }

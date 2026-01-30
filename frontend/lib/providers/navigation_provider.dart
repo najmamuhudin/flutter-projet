@@ -13,6 +13,11 @@ class NavigationProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setDrawerOpen(bool isOpen) {
+    _isDrawerOpen = isOpen;
+    notifyListeners();
+  }
+
   void toggleDrawer() {
     _isDrawerOpen = !_isDrawerOpen;
     notifyListeners();

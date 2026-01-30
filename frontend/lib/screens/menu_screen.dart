@@ -8,7 +8,6 @@ import 'login_screen.dart';
 import 'chat_screen.dart';
 import 'about_screen.dart';
 import 'contact_screen.dart';
-// import 'event_details_screen.dart'; // Removed unused import
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -16,71 +15,70 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthProvider>(context).user;
-    const Color justBlue = Color(0xFF3F51B5);
+    const Color mainBlue = Color(0xFF3A4F9B);
 
     return Scaffold(
-      backgroundColor: justBlue,
-      body: SafeArea(
+      backgroundColor: mainBlue,
+      body: Padding(
+        padding: const EdgeInsets.only(top: 60.0, left: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
-
-            // Profile Section: The Registered Person
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      color: Colors.white30,
-                      shape: BoxShape.circle,
+            // RESTORED: Profile Section from your original data
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Colors.white30,
+                    shape: BoxShape.circle,
+                  ),
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundImage: NetworkImage(
+                      user?['profileImage'] ??
+                          'https://i.pravatar.cc/150?u=student',
                     ),
-                    child: CircleAvatar(
-                      radius: 26,
-                      backgroundImage: NetworkImage(
-                        user?['profileImage'] ??
-                            'https://i.pravatar.cc/150?u=student',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user?['name'] ?? 'naima abdi aziiz',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          user?['name'] ?? 'Student Name',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      Text(
+                        user?['email'] ?? 'naima@gmail.com',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white70,
+                          fontSize: 12,
                         ),
-                        Text(
-                          user?['email'] ?? 'student@gmail.com',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
-            const SizedBox(height: 10),
-            const Divider(color: Colors.white24, indent: 24, endIndent: 24),
+            const SizedBox(height: 20),
+            const SizedBox(
+              width: 200,
+              child: Divider(color: Colors.white24, thickness: 1),
+            ),
             const SizedBox(height: 10),
 
-            // Menu Items List
+            // RESTORED: Original Menu Labels with matching style
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: EdgeInsets.zero,
                 children: [
                   _buildMenuItem(context, Icons.home_outlined, 'Home', 0),
                   _buildActionItem(context, Icons.info_outline, 'About', () {
@@ -92,27 +90,14 @@ class MenuScreen extends StatelessWidget {
                     );
                     ZoomDrawer.of(context)?.close();
                   }),
-                  _buildMenuItem(context, Icons.event_note, 'Event', 2),
+                  _buildMenuItem(context, Icons.event_note, 'Event', 1),
                   _buildMenuItem(
                     context,
                     Icons.campaign_outlined,
                     'Announcements',
-                    1,
+                    2,
                   ),
-                  _buildActionItem(
-                    context,
-                    Icons.message_outlined,
-                    'Message',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ChatScreen(),
-                        ),
-                      );
-                      ZoomDrawer.of(context)?.close();
-                    },
-                  ),
+                  _buildMenuItem(context, Icons.message_outlined, 'Message', 3),
                   _buildActionItem(
                     context,
                     Icons.phone_outlined,
@@ -127,12 +112,14 @@ class MenuScreen extends StatelessWidget {
                       ZoomDrawer.of(context)?.close();
                     },
                   ),
-                  const SizedBox(height: 10),
-                  const Divider(
-                    color: Colors.white24,
-                    indent: 16,
-                    endIndent: 16,
+
+                  const SizedBox(height: 20),
+                  const SizedBox(
+                    width: 200,
+                    child: Divider(color: Colors.white24, thickness: 1),
                   ),
+                  const SizedBox(height: 10),
+
                   _buildActionItem(
                     context,
                     Icons.logout_rounded,
@@ -169,12 +156,10 @@ class MenuScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(
-            8,
-          ), // Rounded square icon bg like screenshot
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: Colors.white, size: 20),
+        child: Icon(icon, color: Colors.white, size: 22),
       ),
       title: Text(
         title,
@@ -184,11 +169,11 @@ class MenuScreen extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       onTap: () {
         final nav = Provider.of<NavigationProvider>(context, listen: false);
-        nav.setIndex(index);
         ZoomDrawer.of(context)?.close();
+        nav.setIndex(index);
       },
     );
   }
@@ -203,10 +188,10 @@ class MenuScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: Colors.white, size: 20),
+        child: Icon(icon, color: Colors.white, size: 22),
       ),
       title: Text(
         title,
@@ -216,7 +201,7 @@ class MenuScreen extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       onTap: onTap,
     );
   }

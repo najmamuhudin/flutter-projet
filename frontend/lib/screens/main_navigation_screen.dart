@@ -7,6 +7,8 @@ import 'inquiries_screen.dart';
 import 'profile_screen.dart';
 import 'announcements_screen.dart';
 import 'events_list_screen.dart';
+import 'admin_events_screen.dart';
+import 'student_messages_screen.dart'; // New Screen
 import '../providers/navigation_provider.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -22,24 +24,26 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final navProvider = Provider.of<NavigationProvider>(context);
     final int currentIndex = navProvider.currentIndex;
     final user = Provider.of<AuthProvider>(context).user;
+
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final bool isAdmin = user['role'] == 'admin';
 
-    // Screens based on role
+    // Updated lists: Admin navigation remains same, Student gets "Messages" section
     final List<Widget> screens = isAdmin
         ? [
             const DashboardScreen(),
             const InquiriesScreen(),
-            const Center(child: Text("Events Management")),
+            const AdminEventsScreen(),
             const ProfileScreen(),
           ]
         : [
             const HomeScreen(),
-            const AnnouncementsScreen(),
             const EventsListScreen(),
+            const AnnouncementsScreen(),
+            const StudentMessagesScreen(), // Added Messages Section
             const ProfileScreen(),
           ];
 
@@ -53,7 +57,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               icon: Icon(Icons.forum_outlined),
               label: "Inbox",
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.event), label: "Events"),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.event_note_outlined),
+              label: "My Events",
+            ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
               label: "Profile",
@@ -65,12 +72,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               label: "Home",
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.event_note_outlined),
+              label: "Events",
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.campaign_outlined),
               label: "Updates",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.event_note_outlined),
-              label: "Events",
+              icon: Icon(Icons.chat_bubble_outline), // Messages Icon
+              label: "Messages",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
@@ -78,21 +89,37 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
           ];
 
-    if (currentIndex >= navItems.length) {
+    if (currentIndex >= screens.length) {
       navProvider.setIndex(0);
       return const SizedBox();
     }
 
     return Scaffold(
       body: screens[currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) => navProvider.setIndex(index),
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: navItems,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: currentIndex,
+          onTap: (index) => navProvider.setIndex(index),
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFF3A4F9B),
+          unselectedItemColor: Colors.grey[400],
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 10, // Adjusted for 5 items
+          ),
+          unselectedLabelStyle: const TextStyle(fontSize: 10),
+          items: navItems,
+        ),
       ),
     );
   }

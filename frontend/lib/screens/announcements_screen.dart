@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../utils/theme.dart';
 import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
+import '../providers/admin_provider.dart';
+import 'package:intl/intl.dart';
 
 class AnnouncementsScreen extends StatefulWidget {
   const AnnouncementsScreen({super.key});
@@ -19,6 +21,15 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AdminProvider>(context, listen: false).fetchAnnouncements();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -43,34 +54,9 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen>
             Provider.of<NavigationProvider>(context, listen: false).setIndex(0);
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: Column(
         children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-            child: TextField(
-              style: const TextStyle(color: Colors.black),
-              decoration: InputDecoration(
-                hintText: 'Search announcements',
-                hintStyle: TextStyle(color: Colors.grey[400]),
-                prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-
           // Tabs
           Container(
             height: 40,
@@ -92,113 +78,100 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen>
                   ),
                 ],
               ),
-              labelColor: AppTheme.primaryColor,
+              labelColor: const Color(0xFF3A4F9B),
               unselectedLabelColor: Colors.grey,
               labelStyle: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
               ),
               tabs: const [
-                Tab(text: 'Department'),
                 Tab(text: 'General'),
                 Tab(text: 'Academic'),
+                Tab(text: 'Urgent'),
               ],
             ),
           ),
 
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildAnnouncementList('Department'),
-                _buildAnnouncementList('General'),
-                _buildAnnouncementList('Academic'),
-              ],
+            child: Consumer<AdminProvider>(
+              builder: (context, adminProvider, _) {
+                if (adminProvider.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final announcements = adminProvider.announcements;
+
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildFilteredList(announcements, 'General'),
+                    _buildFilteredList(announcements, 'Academic'),
+                    _buildFilteredList(announcements, 'Urgent'),
+                  ],
+                );
+              },
             ),
           ),
         ],
       ),
-      // FAB removed as it is now in the main navigation bar
     );
   }
 
-  Widget _buildAnnouncementList(String categoryFilter) {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(bottom: 16.0),
-          child: Text(
-            'LATEST UPDATES',
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
-          ),
+  Widget _buildFilteredList(List<dynamic> all, String type) {
+    List<dynamic> filtered;
+    if (type == 'Urgent') {
+      filtered = all.where((a) => a['urgent'] == true).toList();
+    } else {
+      // If the backend doesn't have a specific category yet, we show all in general or filter by a field if exists
+      // Assuming audience or some other field might be used, or just showing all for now
+      filtered = all;
+    }
+
+    if (filtered.isEmpty) {
+      return Center(
+        child: Text(
+          "No $type announcements found.",
+          style: const TextStyle(color: Colors.grey),
         ),
+      );
+    }
 
-        if (categoryFilter == 'Academic' || categoryFilter == 'General')
-          _buildAnnouncementCard(
-            icon: Icons.calendar_today,
-            color: Colors.blue,
-            title: 'Spring Semester Registration Now Open',
-            category: 'ACADEMIC',
-            categoryColor: Colors.blue,
-            date: 'Oct 24',
-            description:
-                'Online registration for the upcoming spring semester is now officially open...',
-          ),
-
-        if (categoryFilter == 'General')
-          _buildAnnouncementCard(
-            icon: Icons.access_time_filled,
-            color: Colors.orange,
-            title: 'Library Hours Extended for Finals',
-            category: 'GENERAL',
-            categoryColor: Colors.orange,
-            date: 'Oct 22',
-            description:
-                'Starting next Monday, the Main Library will be open 24/7 to support students...',
-          ),
-
-        if (categoryFilter == 'Department' || categoryFilter == 'General')
-          _buildAnnouncementCard(
-            icon: Icons.school,
-            color: Colors.purple,
-            title: 'CS Dept: Guest Lecture by Dr. Sarah Smith',
-            category: 'DEPARTMENT',
-            categoryColor: Colors.purple,
-            date: 'Oct 20',
-            description:
-                'Join us this Friday at the Main Hall for an insightful session on Artificial...',
-          ),
-
-        if (categoryFilter == 'General')
-          _buildAnnouncementCard(
-            icon: Icons.campaign,
-            color: Colors.grey,
-            title: 'Campus Parking Zone Changes',
-            category: 'GENERAL',
-            categoryColor: Colors.grey,
-            date: 'Oct 18',
-            description:
-                'Please note that Zone B parking will be closed for maintenance work starting...',
-          ),
-      ],
+    return ListView.builder(
+      padding: const EdgeInsets.all(20),
+      itemCount: filtered.length,
+      itemBuilder: (context, index) {
+        final a = filtered[index];
+        return _buildAnnouncementCard(
+          title: a['title'] ?? 'Untitled',
+          category: (a['urgent'] == true) ? 'URGENT' : 'GENERAL',
+          date: _formatDate(a['createdAt']),
+          description: a['message'] ?? '',
+          isUrgent: a['urgent'] == true,
+        );
+      },
     );
+  }
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null) return '';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM d').format(date);
+    } catch (e) {
+      return '';
+    }
   }
 
   Widget _buildAnnouncementCard({
-    required IconData icon,
-    required Color color,
     required String title,
     required String category,
-    required Color categoryColor,
     required String date,
     required String description,
+    bool isUrgent = false,
   }) {
+    final color = isUrgent ? Colors.red : Colors.blue;
+    final icon = isUrgent ? Icons.warning_amber_rounded : Icons.campaign;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -247,7 +220,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen>
                     Text(
                       category,
                       style: TextStyle(
-                        color: categoryColor,
+                        color: color,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),

@@ -7,255 +7,329 @@ import 'profile_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/event_provider.dart';
+import '../providers/admin_provider.dart';
+import 'package:intl/intl.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<EventProvider>(context, listen: false).fetchEvents();
+      Provider.of<AdminProvider>(context, listen: false).fetchAnnouncements();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = Provider.of<AuthProvider>(context).user; // Get user data
+    final user = Provider.of<AuthProvider>(context).user;
     final userName = user?['name'] ?? 'Student';
-    final userEmail = user?['email'] ?? '';
 
     return Scaffold(
       backgroundColor: Colors.white,
-      // Drawer removed for custom Zoom Drawer implementation
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Builder(
-                      builder: (context) => IconButton(
-                        icon: const Icon(
-                          Icons.menu,
-                          size: 30,
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await Provider.of<EventProvider>(
+              context,
+              listen: false,
+            ).fetchEvents();
+            await Provider.of<AdminProvider>(
+              context,
+              listen: false,
+            ).fetchAnnouncements();
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Consumer<NavigationProvider>(
+                        builder: (context, navProvider, _) => GestureDetector(
+                          onTap: () {
+                            if (navProvider.isDrawerOpen) {
+                              navProvider.setIndex(0);
+                            }
+                            ZoomDrawer.of(context)?.toggle();
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            padding: EdgeInsets.all(
+                              navProvider.isDrawerOpen ? 8 : 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: navProvider.isDrawerOpen
+                                  ? Colors.white
+                                  : Colors.transparent,
+                              shape: BoxShape.circle,
+                              boxShadow: navProvider.isDrawerOpen
+                                  ? [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 10,
+                                        spreadRadius: 1,
+                                      ),
+                                    ]
+                                  : [],
+                            ),
+                            child: Icon(
+                              navProvider.isDrawerOpen
+                                  ? Icons.close
+                                  : Icons.menu,
+                              size: navProvider.isDrawerOpen ? 24 : 30,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey[200]!),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ProfileScreen(),
+                              ),
+                            );
+                          },
+                          child: CircleAvatar(
+                            backgroundImage: NetworkImage(
+                              user?['profileImage'] ??
+                                  'https://i.pravatar.cc/150?u=student',
+                            ),
+                            child: (user?['profileImage'] == null)
+                                ? const Icon(Icons.person)
+                                : null,
+                            radius: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'WELCOME BACK',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        userName,
+                        style: GoogleFonts.merriweather(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
-                        onPressed: () {
-                          // Reset to Home tab whenever menu is clicked
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Featured Events Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Featured Events',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
                           Provider.of<NavigationProvider>(
                             context,
                             listen: false,
-                          ).setIndex(0);
-                          // Toggles the custom Zoom Drawer
-                          ZoomDrawer.of(context)?.toggle();
+                          ).setIndex(1);
                         },
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ProfileScreen(),
-                            ),
-                          );
-                        }, // Link to Profile
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                            user?['profileImage'] ??
-                                'https://i.pravatar.cc/150?u=student',
+                        child: Text(
+                          'See all',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: const Color(0xFF3A4F9B),
+                            fontWeight: FontWeight.w600,
                           ),
-                          onBackgroundImageError: (exception, stackTrace) {
-                            // Handle error
-                          },
-                          child: (user?['profileImage'] == null)
-                              ? const Icon(Icons.person)
-                              : null,
-                          radius: 20,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'WELCOME BACK',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[600],
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      userName, // Dynamic Name
-                      style: GoogleFonts.merriweather(
-                        // Serif font for name if available, or just Bold Inter
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Search Bar removed or kept? User didn't explicitly ask to remove, but previous design has it commented out.
-              // I'll keep the structure as is, focusing on adding the drawer.
-
-              // Featured Events Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Featured Events',
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      'See all',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Horizontal Scrollable Events
-              SizedBox(
-                height: 220,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children: [
-                    _buildFeaturedEventCard(
-                      context,
-                      'Annual Spring Fest',
-                      'March 20 • Main Quad',
-                      'https://images.unsplash.com/photo-1523050853063-913a6e046732?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    ),
-                    const SizedBox(width: 16),
-                    _buildFeaturedEventCard(
-                      context,
-                      'Hackathon 2024',
-                      'April 15 • Tech Hub',
-                      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Campus News Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Text(
-                  'Campus News',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // News List
-              ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  _buildNewsItem(
-                    category: 'ACADEMIC',
-                    title: 'New Library Hours Announced for Finals Week',
-                    time: '2 hours ago',
-                    description:
-                        'Starting next Monday, the campus library will be open 24/7 to accommodate students...',
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1523580846011-d3a5bc2546eb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+                // Horizontal Scrollable Events
+                SizedBox(
+                  height: 220,
+                  child: Consumer<EventProvider>(
+                    builder: (context, eventProvider, _) {
+                      if (eventProvider.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (eventProvider.events.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            "No upcoming events",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        );
+                      }
+
+                      // Take top 3 events as featured
+                      final featured = eventProvider.events.take(3).toList();
+
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: featured.length,
+                        itemBuilder: (context, index) {
+                          final event = featured[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: _buildFeaturedEventCard(context, event),
+                          );
+                        },
+                      );
+                    },
                   ),
-                  const SizedBox(height: 24),
-                  _buildNewsItem(
-                    category: 'COMMUNITY',
-                    title: 'Student Union Election Results Are In!',
-                    time: '5 hours ago',
-                    description:
-                        'The votes have been counted and we are excited to announce your new student...',
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+                ),
+                const SizedBox(height: 32),
+
+                // Campus News Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Campus News',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Provider.of<NavigationProvider>(
+                            context,
+                            listen: false,
+                          ).setIndex(2);
+                        },
+                        child: Text(
+                          'View all',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: const Color(0xFF3A4F9B),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 100), // Bottom padding for FAB
-            ],
+                ),
+                const SizedBox(height: 16),
+
+                // News List
+                Consumer<AdminProvider>(
+                  builder: (context, adminProvider, _) {
+                    if (adminProvider.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (adminProvider.announcements.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No campus news available",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      );
+                    }
+
+                    // Take latest 3 as news
+                    final news = adminProvider.announcements.take(3).toList();
+
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: news.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 24),
+                      itemBuilder: (context, index) {
+                        final a = news[index];
+                        return _buildNewsItem(
+                          category: (a['urgent'] == true) ? 'URGENT' : 'CAMPUS',
+                          title: a['title'] ?? 'Untitled',
+                          time: _formatTime(a['createdAt']),
+                          description: a['message'] ?? '',
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 100),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildDrawerItem(
-    BuildContext context,
-    IconData icon,
-    String title,
-    VoidCallback onTap,
-  ) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.grey[800]),
-      title: Text(
-        title,
-        style: GoogleFonts.inter(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.grey[900],
-        ),
-      ),
-      onTap: onTap,
-    );
+  String _formatTime(String? dateStr) {
+    if (dateStr == null) return '';
+    try {
+      final date = DateTime.parse(dateStr);
+      final now = DateTime.now();
+      final diff = now.difference(date);
+      if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+      if (diff.inHours < 24) return '${diff.inHours}h ago';
+      return DateFormat('MMM d').format(date);
+    } catch (e) {
+      return '';
+    }
   }
 
-  Widget _buildFeaturedEventCard(
-    BuildContext context,
-    String title,
-    String subtitle,
-    String imageUrl,
-  ) {
+  Widget _buildFeaturedEventCard(BuildContext context, dynamic event) {
+    final imageUrl =
+        event['imageUrl'] ??
+        'https://images.unsplash.com/photo-1523050853063-913a6e046732?auto=format&fit=crop&w=1350&q=80';
+    final title = event['title'] ?? 'Untitled Event';
+    final date = event['date'] ?? 'TBA';
+    final location = event['location'] ?? 'Campus';
+
     return GestureDetector(
       onTap: () {
-        // specific featured event data
-        final event = {
-          'title': title,
-          'date': subtitle.split('•')[0].trim(),
-          'location': subtitle.split('•').length > 1
-              ? subtitle.split('•')[1].trim()
-              : 'Campus',
-          'imageUrl': imageUrl,
-          'category': 'FEATURED',
-          'description':
-              'This is a featured event on campus. Don\'t miss out on this exciting opportunity!',
-          'time': 'TBA',
-        };
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => EventDetailsScreen(event: event)),
         );
@@ -310,7 +384,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        subtitle,
+                        '$date • $location',
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
@@ -332,26 +406,20 @@ class HomeScreen extends StatelessWidget {
     required String title,
     required String time,
     required String description,
-    required String imageUrl,
   }) {
-    // Based on the second screenshot (light mode list)
-    // The screenshot shows a list where images are sometimes on the right or hidden?
-    // Wait, the "Campus News" screenshot (3rd image) has big images for "Featured" but "Campus News" items look like standard cards or tiles.
-    // Let's implement them as cards with a small chip for category.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Category Chip
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+            color: const Color(0xFF3A4F9B).withOpacity(0.1),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
             category,
             style: const TextStyle(
-              color: Colors.blue,
+              color: Color(0xFF3A4F9B),
               fontSize: 10,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,

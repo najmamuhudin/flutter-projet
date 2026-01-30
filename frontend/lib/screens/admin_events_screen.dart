@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../providers/event_provider.dart';
 import '../providers/navigation_provider.dart';
 import 'event_details_screen.dart';
 
-class EventsListScreen extends StatefulWidget {
-  const EventsListScreen({super.key});
+class AdminEventsScreen extends StatefulWidget {
+  const AdminEventsScreen({super.key});
 
   @override
-  State<EventsListScreen> createState() => _EventsListScreenState();
+  State<AdminEventsScreen> createState() => _AdminEventsScreenState();
 }
 
-class _EventsListScreenState extends State<EventsListScreen> {
+class _AdminEventsScreenState extends State<AdminEventsScreen> {
   @override
   void initState() {
     super.initState();
@@ -23,11 +24,15 @@ class _EventsListScreenState extends State<EventsListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<AuthProvider>(context).user;
+    final String adminId = user?['_id'] ?? '';
+    final String adminName = user?['name'] ?? 'Admin';
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF6F8FB),
       appBar: AppBar(
         title: Text(
-          'Events',
+          'My Events',
           style: GoogleFonts.inter(
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -50,23 +55,45 @@ class _EventsListScreenState extends State<EventsListScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final events = eventProvider.events;
+          final myEvents = eventProvider.events.where((event) {
+            // Updated: The backend model uses 'user' for the creator
+            final creator = event['user'];
 
-          if (events.isEmpty) {
+            if (creator == null) return false;
+
+            // Handle both String ID and populated User object
+            if (creator is String) {
+              return creator == adminId;
+            } else if (creator is Map) {
+              return creator['_id'] == adminId;
+            }
+
+            return false;
+          }).toList();
+
+          if (myEvents.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.event_note_outlined,
-                    size: 64,
+                    Icons.event_busy_outlined,
+                    size: 80,
                     color: Colors.grey.shade300,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    "No events found.\nCheck back later!",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
+                  Text(
+                    "You haven't created any events yet.",
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Switch to Dashboard to create one!",
+                    style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                   ),
                 ],
               ),
@@ -74,16 +101,11 @@ class _EventsListScreenState extends State<EventsListScreen> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(20),
-            itemCount: events.length,
+            padding: const EdgeInsets.all(16),
+            itemCount: myEvents.length,
             itemBuilder: (context, index) {
-              final event = events[index];
-              return Column(
-                children: [
-                  _buildEventCard(context, event),
-                  const SizedBox(height: 20),
-                ],
-              );
+              final event = myEvents[index];
+              return _buildEventCard(context, event);
             },
           );
         },
@@ -105,6 +127,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
         );
       },
       child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
         height: 200,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -114,7 +137,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                   fit: BoxFit.cover,
                 )
               : null,
-          color: Colors.grey[200],
+          color: Colors.grey[300],
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -153,7 +176,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Color(0xFF3A4F9B),
                     ),
                   ),
                 ),

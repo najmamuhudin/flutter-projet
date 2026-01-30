@@ -327,7 +327,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
       String? imageUrl;
       if (_image != null) {
-        imageUrl = await eventProvider.uploadImage(_image!.path);
+        final bytes = await _image!.readAsBytes();
+        imageUrl = await eventProvider.uploadImage(bytes, _image!.name);
       }
 
       if (!mounted) return;

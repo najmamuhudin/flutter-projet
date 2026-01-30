@@ -42,7 +42,7 @@ class EventService {
     }
   }
 
-  Future<String?> uploadImage(String filePath) async {
+  Future<String?> uploadImage(List<int> bytes, String filename) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
@@ -51,7 +51,10 @@ class EventService {
       Uri.parse('${AppConstants.baseUrl}/events/upload'),
     );
     request.headers['Authorization'] = 'Bearer $token';
-    request.files.add(await http.MultipartFile.fromPath('image', filePath));
+
+    request.files.add(
+      http.MultipartFile.fromBytes('image', bytes, filename: filename),
+    );
 
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);

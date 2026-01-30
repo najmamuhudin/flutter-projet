@@ -83,11 +83,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
-        IconButton(
-          onPressed: () => ZoomDrawer.of(context)?.toggle(),
-          icon: const Icon(Icons.menu),
-        ),
-        const SizedBox(width: 8),
         const CircleAvatar(
           radius: 22,
           backgroundColor: Colors.blue,
