@@ -36,4 +36,13 @@ class EventProvider with ChangeNotifier {
   Future<String?> uploadImage(List<int> bytes, String filename) async {
     return await _eventService.uploadImage(bytes, filename);
   }
+
+  Future<void> registerForEvent(String eventId) async {
+    try {
+      await _eventService.registerForEvent(eventId);
+      await fetchEvents(); // Refresh to get updated attendee list
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

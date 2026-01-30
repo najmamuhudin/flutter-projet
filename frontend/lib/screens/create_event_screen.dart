@@ -143,15 +143,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            image: _image != null
-                ? DecorationImage(
-                    image: FileImage(File(_image!.path)),
-                    fit: BoxFit.cover,
-                  )
-                : null,
           ),
           child: _image != null
-              ? null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.file(
+                    File(_image!.path),
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                )
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

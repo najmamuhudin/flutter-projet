@@ -9,6 +9,7 @@ import '../providers/navigation_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/event_provider.dart';
 import '../providers/admin_provider.dart';
+import '../utils/constants.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -321,9 +322,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildFeaturedEventCard(BuildContext context, dynamic event) {
-    final imageUrl =
-        event['imageUrl'] ??
-        'https://images.unsplash.com/photo-1523050853063-913a6e046732?auto=format&fit=crop&w=1350&q=80';
+    String imageUrl = event['imageUrl'] ?? '';
+    if (imageUrl.startsWith('/')) {
+      imageUrl = '${AppConstants.baseImageUrl}$imageUrl';
+    } else if (imageUrl.isEmpty) {
+      imageUrl =
+          'https://images.unsplash.com/photo-1523050853063-913a6e046732?auto=format&fit=crop&w=1350&q=80';
+    }
     final title = event['title'] ?? 'Untitled Event';
     final date = event['date'] ?? 'TBA';
     final location = event['location'] ?? 'Campus';

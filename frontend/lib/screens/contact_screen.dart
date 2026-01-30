@@ -55,12 +55,7 @@ class ContactScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0), Color(0xFF66BB6A)], // Purple to Greenish mix
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [0.0, 0.5, 1.0]
-                ),
+                color: const Color(0xFF3A4F9B),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -127,8 +122,8 @@ class ContactScreen extends StatelessWidget {
             // Options List
             _buildSupportOption(
               icon: Icons.phone,
-              iconColor: const Color(0xFFE91E63), // Pink
-              iconBgColor: const Color(0xFFFCE4EC),
+              iconColor: const Color.fromARGB(255, 248, 250, 250), // Pink
+              iconBgColor: const Color.fromARGB(255, 158, 169, 209),
               title: 'Phone Support',
               subtitle: 'Call our helpline for immediate assistance',
             ),
@@ -169,7 +164,7 @@ class ContactScreen extends StatelessWidget {
                 children: [
                    Row(
                     children: [
-                      const Icon(Icons.info, color: Colors.blue, size: 20),
+                      const Icon(Icons.info, color:Color(0xFF3A4F9B), size: 20),
                       const SizedBox(width: 8),
                       Text(
                         'Support Information',

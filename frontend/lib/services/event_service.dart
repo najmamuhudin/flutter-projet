@@ -66,4 +66,31 @@ class EventService {
       throw Exception('Failed to upload image');
     }
   }
+
+  Future<void> registerForEvent(String eventId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.post(
+      Uri.parse('${AppConstants.baseUrl}/events/register/$eventId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({}),
+    );
+
+    if (response.statusCode != 200) {
+      String errorMessage = 'Failed to register for event';
+      if (response.headers['content-type']?.contains('application/json') ??
+          false) {
+        try {
+          errorMessage = jsonDecode(response.body)['message'] ?? errorMessage;
+        } catch (_) {}
+      } else {
+        errorMessage = 'Server error (${response.statusCode})';
+      }
+      throw Exception(errorMessage);
+    }
+  }
 }

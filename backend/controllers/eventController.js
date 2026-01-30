@@ -93,9 +93,33 @@ const deleteEvent = asyncHandler(async (req, res) => {
     res.status(200).json({ id: req.params.id });
 });
 
+// @desc    Register for an event
+// @route   POST /api/events/:id/register
+// @access  Private
+const registerForEvent = asyncHandler(async (req, res) => {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+        res.status(404);
+        throw new Error('Event not found');
+    }
+
+    // Check if user is already registered
+    if (event.attendees.includes(req.user.id)) {
+        res.status(400);
+        throw new Error('User already registered for this event');
+    }
+
+    event.attendees.push(req.user.id);
+    await event.save();
+
+    res.status(200).json({ message: 'Registered successfully', event });
+});
+
 module.exports = {
     getEvents,
     createEvent,
     updateEvent,
     deleteEvent,
+    registerForEvent,
 };

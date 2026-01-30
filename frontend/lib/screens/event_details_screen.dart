@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../providers/event_provider.dart';
+import '../providers/auth_provider.dart';
+import '../utils/constants.dart';
 
 class EventDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> event;
 
-  const EventDetailsScreen({
-    super.key, 
-    required this.event,
-  });
+  const EventDetailsScreen({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +17,22 @@ class EventDetailsScreen extends StatelessWidget {
     final String date = event['date'] ?? 'Upcoming';
     final String time = event['time'] ?? 'TBA';
     final String location = event['location'] ?? 'Campus';
-    final String imageUrl = event['imageUrl'] ?? 'https://via.placeholder.com/600x400';
+
+    String imageUrl = event['imageUrl'] ?? '';
+    if (imageUrl.startsWith('/')) {
+      imageUrl = '${AppConstants.baseImageUrl}$imageUrl';
+    } else if (imageUrl.isEmpty) {
+      imageUrl = 'https://via.placeholder.com/600x400';
+    }
+
     final String category = event['category'] ?? 'EVENT';
-    final String description = event['description'] ?? 'No description available for this event.';
+    final String description =
+        event['description'] ?? 'No description available for this event.';
+
+    final user = Provider.of<AuthProvider>(context).user;
+    final userId = user?['_id'];
+    final attendees = (event['attendees'] as List?) ?? [];
+    final bool isRegistered = userId != null && attendees.contains(userId);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -37,36 +51,51 @@ class EventDetailsScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 4),
+                    ],
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.black,
+                      size: 20,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
                 actions: [
-                   Container(
-                     margin: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
-                     decoration: BoxDecoration(
-                       color: Colors.white,
-                       shape: BoxShape.circle,
-                       boxShadow: [const BoxShadow(color: Colors.black12, blurRadius: 4)],
-                     ),
-                     child: IconButton(
-                       icon: const Icon(Icons.share, color: Colors.black, size: 20),
-                       onPressed: () {},
-                     ),
-                   )
+                  Container(
+                    margin: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        const BoxShadow(color: Colors.black12, blurRadius: 4),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.share,
+                        color: Colors.black,
+                        size: 20,
+                      ),
+                      onPressed: () {},
+                    ),
+                  ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (c, e, s) => Container(color: Colors.grey[300], child: const Icon(Icons.image_not_supported)),
+                    errorBuilder: (c, e, s) => Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.image_not_supported),
+                    ),
                   ),
                 ),
               ),
-              
+
               // 2. Content
               SliverToBoxAdapter(
                 child: Padding(
@@ -84,18 +113,26 @@ class EventDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Chips layer
                       Row(
                         children: [
-                          _buildChip(category, const Color(0xFFE3F2FD), const Color(0xFF1E88E5)),
+                          _buildChip(
+                            category,
+                            const Color(0xFFE3F2FD),
+                            const Color(0xFF1E88E5),
+                          ),
                           const SizedBox(width: 8),
-                          _buildChip('OPEN FOR ALL', const Color(0xFFE8F5E9), const Color(0xFF4CAF50)),
+                          _buildChip(
+                            'OPEN FOR ALL',
+                            const Color(0xFFE8F5E9),
+                            const Color(0xFF4CAF50),
+                          ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Date & Time Card
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -108,8 +145,8 @@ class EventDetailsScreen extends StatelessWidget {
                               color: Colors.black.withOpacity(0.02),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
-                            )
-                          ]
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
@@ -119,7 +156,11 @@ class EventDetailsScreen extends StatelessWidget {
                                 color: Colors.blue[50],
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.calendar_today_rounded, color: Color(0xFF1E88E5), size: 24),
+                              child: const Icon(
+                                Icons.calendar_today_rounded,
+                                color: Color(0xFF1E88E5),
+                                size: 24,
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -146,7 +187,10 @@ class EventDetailsScreen extends StatelessWidget {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFE3F2FD),
                                 borderRadius: BorderRadius.circular(8),
@@ -164,15 +208,15 @@ class EventDetailsScreen extends StatelessWidget {
                         ),
                       ),
 
-                       const SizedBox(height: 16),
-                      
+                      const SizedBox(height: 16),
+
                       Text(
-                         'About Event',
-                         style: GoogleFonts.inter(
-                           fontSize: 16,
-                           fontWeight: FontWeight.bold,
-                           color: Colors.black87,
-                         ),
+                        'About Event',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -183,7 +227,7 @@ class EventDetailsScreen extends StatelessWidget {
                           height: 1.6,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 100), // Space for fixed button
                     ],
                   ),
@@ -191,34 +235,72 @@ class EventDetailsScreen extends StatelessWidget {
               ),
             ],
           ),
-          
+
           // Fixed Bottom Button
           Positioned(
             left: 20,
             right: 20,
             bottom: 30,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: isRegistered
+                  ? null
+                  : () async {
+                      try {
+                        final eventId = event['_id'] ?? event['id'];
+                        if (eventId == null) {
+                          throw Exception('Invalid event ID');
+                        }
+                        await Provider.of<EventProvider>(
+                          context,
+                          listen: false,
+                        ).registerForEvent(eventId);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Registered successfully!'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.toString()),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E88E5),
+                backgroundColor: isRegistered
+                    ? Colors.grey
+                    : const Color(0xFF1E88E5),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 4,
-                shadowColor: const Color(0xFF1E88E5).withOpacity(0.4),
+                shadowColor: isRegistered
+                    ? Colors.transparent
+                    : const Color(0xFF1E88E5).withOpacity(0.4),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Register Now',
+                    isRegistered ? 'Already Registered' : 'Register Now',
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward_rounded, size: 20),
+                  if (!isRegistered) ...[
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward_rounded, size: 20),
+                  ],
                 ],
               ),
             ),

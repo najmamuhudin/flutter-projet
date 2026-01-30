@@ -8,10 +8,19 @@ class AppConstants {
     if (kIsWeb) {
       return 'http://localhost:5000/api';
     } else if (defaultTargetPlatform == TargetPlatform.android) {
-      // Use 10.0.2.2 to point to host machine's localhost from Android emulator
       return 'http://10.0.2.2:5000/api';
     } else {
       return 'http://localhost:5000/api';
+    }
+  }
+
+  static String get baseImageUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5000';
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:5000';
+    } else {
+      return 'http://localhost:5000';
     }
   }
 

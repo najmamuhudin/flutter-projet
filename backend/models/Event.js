@@ -35,7 +35,13 @@ const eventSchema = mongoose.Schema({
     imageUrl: {
         type: String,
         // required: [true, 'Please add an image URL'] // Optional for now
-    }
+    },
+    attendees: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ]
 }, {
     timestamps: true
 });

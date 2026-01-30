@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/event_provider.dart';
 import '../providers/navigation_provider.dart';
+import '../utils/constants.dart';
 import 'event_details_screen.dart';
 
 class EventsListScreen extends StatefulWidget {
@@ -95,7 +96,12 @@ class _EventsListScreenState extends State<EventsListScreen> {
     final String title = event['title'] ?? 'Untitled Event';
     final String date = event['date'] ?? '';
     final String location = event['location'] ?? 'Campus';
-    final String imageUrl = event['imageUrl'] ?? '';
+
+    String imageUrl = event['imageUrl'] ?? '';
+    if (imageUrl.startsWith('/')) {
+      imageUrl = '${AppConstants.baseImageUrl}$imageUrl';
+    }
+
     final String category = (event['category'] ?? 'EVENT').toUpperCase();
 
     return GestureDetector(
