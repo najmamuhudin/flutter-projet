@@ -10,6 +10,7 @@ import '../providers/auth_provider.dart';
 import '../providers/event_provider.dart';
 import '../providers/admin_provider.dart';
 import '../utils/constants.dart';
+import '../utils/image_helper.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -322,13 +323,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildFeaturedEventCard(BuildContext context, dynamic event) {
-    String imageUrl = event['imageUrl'] ?? '';
-    if (imageUrl.startsWith('/')) {
-      imageUrl = '${AppConstants.baseImageUrl}$imageUrl';
-    } else if (imageUrl.isEmpty) {
-      imageUrl =
-          'https://images.unsplash.com/photo-1523050853063-913a6e046732?auto=format&fit=crop&w=1350&q=80';
-    }
     final title = event['title'] ?? 'Untitled Event';
     final date = event['date'] ?? 'TBA';
     final location = event['location'] ?? 'Campus';
@@ -349,13 +343,15 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              imageUrl,
+            // Image Layer
+            ImageHelper.buildNetworkImage(
+              event['imageUrl'],
+              height: double.infinity,
+              width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => const Center(
-                child: Icon(Icons.image_not_supported, color: Colors.grey),
-              ),
             ),
+
+            // Gradient Overlay
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -365,6 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            // Content
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(

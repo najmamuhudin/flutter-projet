@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/event_provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
+import '../utils/image_helper.dart';
 
 class EventDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> event;
@@ -12,20 +13,12 @@ class EventDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Default values if data is missing
     final String title = event['title'] ?? 'Event Details';
     final String date = event['date'] ?? 'Upcoming';
     final String time = event['time'] ?? 'TBA';
     final String location = event['location'] ?? 'Campus';
-
-    String imageUrl = event['imageUrl'] ?? '';
-    if (imageUrl.startsWith('/')) {
-      imageUrl = '${AppConstants.baseImageUrl}$imageUrl';
-    } else if (imageUrl.isEmpty) {
-      imageUrl = 'https://via.placeholder.com/600x400';
-    }
-
     final String category = event['category'] ?? 'EVENT';
+
     final String description =
         event['description'] ?? 'No description available for this event.';
 
@@ -85,13 +78,9 @@ class EventDetailsScreen extends StatelessWidget {
                   ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Image.network(
-                    imageUrl,
+                  background: ImageHelper.buildNetworkImage(
+                    event['imageUrl'],
                     fit: BoxFit.cover,
-                    errorBuilder: (c, e, s) => Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
-                    ),
                   ),
                 ),
               ),

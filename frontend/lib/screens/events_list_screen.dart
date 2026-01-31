@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/event_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../utils/constants.dart';
+import '../utils/image_helper.dart';
 import 'event_details_screen.dart';
 
 class EventsListScreen extends StatefulWidget {
@@ -97,11 +98,6 @@ class _EventsListScreenState extends State<EventsListScreen> {
     final String date = event['date'] ?? '';
     final String location = event['location'] ?? 'Campus';
 
-    String imageUrl = event['imageUrl'] ?? '';
-    if (imageUrl.startsWith('/')) {
-      imageUrl = '${AppConstants.baseImageUrl}$imageUrl';
-    }
-
     final String category = (event['category'] ?? 'EVENT').toUpperCase();
 
     return GestureDetector(
@@ -111,15 +107,10 @@ class _EventsListScreenState extends State<EventsListScreen> {
         );
       },
       child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         height: 200,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          image: imageUrl.isNotEmpty
-              ? DecorationImage(
-                  image: NetworkImage(imageUrl),
-                  fit: BoxFit.cover,
-                )
-              : null,
           color: Colors.grey[200],
           boxShadow: [
             BoxShadow(
@@ -129,74 +120,92 @@ class _EventsListScreenState extends State<EventsListScreen> {
             ),
           ],
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            // Image Layer
+            Positioned.fill(
+              child: ImageHelper.buildNetworkImage(
+                event['imageUrl'],
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    category,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+
+            // Gradient Overlay
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
                   ),
                 ),
               ),
-              Column(
+            ),
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        category,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Icons.location_on,
-                        color: Colors.white70,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 4),
                       Text(
-                        '$date • $location',
+                        title,
                         style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on,
+                            color: Colors.white70,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '$date • $location',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

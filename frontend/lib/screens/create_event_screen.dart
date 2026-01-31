@@ -4,6 +4,8 @@ import '../providers/event_provider.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen({super.key});
@@ -26,6 +28,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   bool _enableRSVP = false;
   bool _isSubmitting = false;
   XFile? _image;
+  Uint8List? _webImage;
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
@@ -33,7 +36,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       source: ImageSource.gallery,
     );
     if (selected != null) {
-      setState(() => _image = selected);
+      if (kIsWeb) {
+        final bytes = await selected.readAsBytes();
+        setState(() {
+          _image = selected;
+          _webImage = bytes;
+        });
+      } else {
+        setState(() => _image = selected);
+      }
     }
   }
 
@@ -147,12 +158,21 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           child: _image != null
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.file(
-                    File(_image!.path),
-                    width: double.infinity,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
+                  child: kIsWeb
+                      ? (_webImage != null
+                          ? Image.memory(
+                              _webImage!,
+                              width: double.infinity,
+                              height: 200,
+                              fit: BoxFit.cover,
+                            )
+                          : const Center(child: CircularProgressIndicator()))
+                      : Image.file(
+                          File(_image!.path),
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        ),
                 )
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -311,7 +331,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               ),
             ),
             onPressed: _submit,
-            child: const Text("Preview Event"),
+            child: const Text("Publish Event"),
           ),
         ),
       ],
@@ -329,7 +349,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
       String? imageUrl;
       if (_image != null) {
-        final bytes = await _image!.readAsBytes();
+        final bytes = _webImage ?? await _image!.readAsBytes();
         imageUrl = await eventProvider.uploadImage(bytes, _image!.name);
       }
 

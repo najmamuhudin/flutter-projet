@@ -14,6 +14,11 @@ const getEvents = asyncHandler(async (req, res) => {
 // @route   POST /api/events
 // @access  Private (Admin only)
 const createEvent = asyncHandler(async (req, res) => {
+    console.log('--- CREATING EVENT ---');
+    console.log('User:', req.user.id);
+    console.log('Title:', req.body.title);
+    console.log('Image URL received:', req.body.imageUrl);
+    
     const { title, date, time, location, description, category, imageUrl } = req.body;
 
     if (!title || !date || !time || !location || !description || !category) {

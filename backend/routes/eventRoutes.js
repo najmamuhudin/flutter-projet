@@ -15,8 +15,13 @@ router.post('/register/:id', protect, registerForEvent);
 router.route('/:id').put(protect, admin, updateEvent).delete(protect, admin, deleteEvent);
 
 router.post('/upload', protect, admin, upload.single('image'), (req, res) => {
+    if (!req.file) {
+        console.log('Upload failed: No file received');
+        return res.status(400).send({ message: 'No file uploaded' });
+    }
+    console.log('File uploaded successfully:', req.file.filename);
     res.send({
-        imageUrl: `/${req.file.path}`.replace(/\\/g, '/')
+        imageUrl: `/uploads/${req.file.filename}`.replace(/\\/g, '/')
     });
 });
 

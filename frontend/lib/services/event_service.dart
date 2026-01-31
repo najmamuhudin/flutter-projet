@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
 
@@ -52,8 +53,18 @@ class EventService {
     );
     request.headers['Authorization'] = 'Bearer $token';
 
+    // Add content type for web compatibility
+    final mimeType = filename.toLowerCase().endsWith('.png')
+        ? 'image/png'
+        : 'image/jpeg';
+
     request.files.add(
-      http.MultipartFile.fromBytes('image', bytes, filename: filename),
+      http.MultipartFile.fromBytes(
+        'image',
+        bytes,
+        filename: filename,
+        contentType: http.MediaType.parse(mimeType),
+      ),
     );
 
     final streamedResponse = await request.send();
