@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/navigation_provider.dart';
 import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -97,16 +98,40 @@ class ProfileScreen extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1A73E8), Color(0xFF0D47A1)],
+          colors: [Color(0xFF3A4F9B),Color(0xFF3A4F9B)],
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 40, 20, 40),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
       child: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                onPressed: () {
+                  Provider.of<NavigationProvider>(
+                    context,
+                    listen: false,
+                  ).setIndex(0);
+                },
+              ),
+              const Text(
+                "Profile",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 48), // To balance the back button
+            ],
+          ),
+          const SizedBox(height: 10),
           Stack(
             children: [
               Container(
@@ -123,7 +148,7 @@ class ProfileScreen extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A73E8),
+                      color: Color(0xFF3A4F9B),
                     ),
                   ),
                 ),
@@ -271,7 +296,7 @@ class ProfileScreen extends StatelessWidget {
                 color: const Color(0xFFE0F2FE),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: const Color(0xFF0284C7), size: 20),
+              child: Icon(icon, color: const Color(0xFF3A4F9B), size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(

@@ -104,4 +104,42 @@ class EventService {
       throw Exception(errorMessage);
     }
   }
+
+  Future<dynamic> updateEvent(String id, Map<String, dynamic> eventData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.put(
+      Uri.parse('${AppConstants.baseUrl}/events/$id'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(eventData),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception(
+        jsonDecode(response.body)['message'] ?? 'Failed to update event',
+      );
+    }
+  }
+
+  Future<void> deleteEvent(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.delete(
+      Uri.parse('${AppConstants.baseUrl}/events/$id'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        jsonDecode(response.body)['message'] ?? 'Failed to delete event',
+      );
+    }
+  }
 }

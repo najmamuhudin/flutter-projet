@@ -16,10 +16,16 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // Check if user exists
     const userExists = await User.findOne({ email });
-
     if (userExists) {
         res.status(400);
-        throw new Error('User already exists');
+        throw new Error('User with this email already exists');
+    }
+
+    // Check if studentId exists
+    const idExists = await User.findOne({ studentId });
+    if (idExists) {
+        res.status(400);
+        throw new Error('A user with this ID Number already exists');
     }
 
     // Force role to be student for all public registrations

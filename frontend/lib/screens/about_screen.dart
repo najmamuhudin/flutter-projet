@@ -112,12 +112,12 @@ class AboutScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Color(0xFF3A4F9B).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(
                           Icons.info_outline,
-                          color: Colors.blue,
+                          color: Color(0xFF3A4F9B),
                           size: 20,
                         ),
                       ),

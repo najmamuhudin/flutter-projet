@@ -88,4 +88,28 @@ class AdminProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<void> updateAnnouncement(String id, Map<String, dynamic> data) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _adminService.updateAnnouncement(id, data);
+      await fetchAnnouncements();
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteAnnouncement(String id) async {
+    try {
+      await _adminService.deleteAnnouncement(id);
+      _announcements.removeWhere((a) => a['_id'] == id);
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

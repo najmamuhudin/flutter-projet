@@ -4,6 +4,8 @@ import '../utils/theme.dart';
 import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/admin_provider.dart';
+import '../providers/auth_provider.dart';
+import 'post_announcement_screen.dart';
 import 'package:intl/intl.dart';
 
 class AnnouncementsScreen extends StatefulWidget {
@@ -142,6 +144,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen>
       itemBuilder: (context, index) {
         final a = filtered[index];
         return _buildAnnouncementCard(
+          announcement: a,
           title: a['title'] ?? 'Untitled',
           category: (a['urgent'] == true) ? 'URGENT' : 'GENERAL',
           date: _formatDate(a['createdAt']),
@@ -163,13 +166,16 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen>
   }
 
   Widget _buildAnnouncementCard({
+    required Map<String, dynamic> announcement,
     required String title,
     required String category,
     required String date,
     required String description,
     bool isUrgent = false,
   }) {
-    final color = isUrgent ? Colors.red : Colors.blue;
+    final user = Provider.of<AuthProvider>(context, listen: false).user;
+    final bool isAdmin = user != null && user['role'] == 'admin';
+    final color = isUrgent ? Colors.red : const Color(0xFF3A4F9B);
     final icon = isUrgent ? Icons.warning_amber_rounded : Icons.campaign;
 
     return Container(
@@ -228,10 +234,74 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen>
                   ],
                 ),
               ),
-              Text(
-                date,
-                style: TextStyle(color: Colors.grey[500], fontSize: 12),
-              ),
+              if (isAdmin)
+                PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    if (value == 'edit') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => PostAnnouncementScreen(
+                            announcement: announcement,
+                          ),
+                        ),
+                      );
+                    } else if (value == 'delete') {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text("Delete Announcement"),
+                          content: const Text(
+                            "Are you sure you want to delete this announcement?",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirm == true) {
+                        await Provider.of<AdminProvider>(
+                          context,
+                          listen: false,
+                        ).deleteAnnouncement(announcement['_id']);
+                      }
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: ListTile(
+                        leading: Icon(Icons.edit, color: Color(0xFF3A4F9B)),
+                        title: Text('Edit'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete, color: Colors.red),
+                        title: Text('Delete'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                )
+              else
+                Text(
+                  date,
+                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                ),
             ],
           ),
           const SizedBox(height: 12),
@@ -243,6 +313,16 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen>
               height: 1.5,
             ),
           ),
+          if (isAdmin) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Text(
+                date,
+                style: TextStyle(color: Colors.grey[400], fontSize: 10),
+              ),
+            ),
+          ],
         ],
       ),
     );

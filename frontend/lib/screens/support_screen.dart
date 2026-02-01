@@ -107,7 +107,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 child: ElevatedButton(
                   onPressed: _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Color(0xFF3A4F9B),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

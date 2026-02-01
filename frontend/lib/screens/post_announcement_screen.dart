@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/admin_provider.dart';
 
 class PostAnnouncementScreen extends StatefulWidget {
-  const PostAnnouncementScreen({super.key});
+  final Map<String, dynamic>? announcement;
+  const PostAnnouncementScreen({super.key, this.announcement});
 
   @override
   State<PostAnnouncementScreen> createState() => _PostAnnouncementScreenState();
@@ -11,12 +12,34 @@ class PostAnnouncementScreen extends StatefulWidget {
 
 class _PostAnnouncementScreenState extends State<PostAnnouncementScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _messageController = TextEditingController();
+  late TextEditingController _titleController;
+  late TextEditingController _messageController;
 
   bool _urgent = false;
   bool _pushNotification = true;
   String _audience = "All Students";
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(
+      text: widget.announcement?['title'],
+    );
+    _messageController = TextEditingController(
+      text: widget.announcement?['message'],
+    );
+    if (widget.announcement != null) {
+      _urgent = widget.announcement!['urgent'] ?? false;
+      _audience = widget.announcement!['audience'] ?? "All Students";
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +97,7 @@ class _PostAnnouncementScreenState extends State<PostAnnouncementScreen> {
 
               _settingTile(
                 icon: Icons.notifications_active,
-                iconBg: Colors.blue.withOpacity(0.15),
+                iconBg: Color(0xFF3A4F9B).withOpacity(0.15),
                 title: "Push Notification",
                 subtitle: "Notify all students immediately",
                 trailing: Switch(
@@ -93,7 +116,7 @@ class _PostAnnouncementScreenState extends State<PostAnnouncementScreen> {
                     Text(
                       _audience,
                       style: const TextStyle(
-                        color: Colors.blue,
+                        color: Color(0xFF3A4F9B),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -116,7 +139,7 @@ class _PostAnnouncementScreenState extends State<PostAnnouncementScreen> {
                     style: TextStyle(fontSize: 16),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Color(0xFF3A4F9B),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -137,20 +160,30 @@ class _PostAnnouncementScreenState extends State<PostAnnouncementScreen> {
       backgroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.close, color: Colors.blue),
+        icon: const Icon(Icons.close, color: Color(0xFF3A4F9B)),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text(
-        "Post Announcement",
-        style: TextStyle(color: Colors.black),
+      title: Text(
+        widget.announcement == null
+            ? "Post Announcement"
+            : "Update Announcement",
+        style: const TextStyle(color: Colors.black),
       ),
       centerTitle: true,
       actions: [
+        if (widget.announcement != null)
+          IconButton(
+            onPressed: _deleteAnnouncement,
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+          ),
         TextButton(
           onPressed: _submit,
-          child: const Text(
-            "Post",
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+          child: Text(
+            widget.announcement == null ? "Post" : "Save",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF3A4F9B),
+            ),
           ),
         ),
       ],
@@ -230,20 +263,66 @@ class _PostAnnouncementScreenState extends State<PostAnnouncementScreen> {
     );
   }
 
-  // ================= SUBMIT =================
-  void _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+  void _deleteAnnouncement() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Delete Announcement"),
+        content: const Text(
+          "Are you sure you want to delete this announcement?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
 
     try {
       await Provider.of<AdminProvider>(
         context,
         listen: false,
-      ).postAnnouncement({
+      ).deleteAnnouncement(widget.announcement!['_id']);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
+  }
+
+  // ================= SUBMIT =================
+  void _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+      final data = {
         'title': _titleController.text.trim(),
         'message': _messageController.text.trim(),
         'urgent': _urgent,
         'audience': _audience,
-      });
+      };
+
+      if (widget.announcement == null) {
+        await adminProvider.postAnnouncement(data);
+      } else {
+        await adminProvider.updateAnnouncement(
+          widget.announcement!['_id'],
+          data,
+        );
+      }
+
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {

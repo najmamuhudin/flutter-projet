@@ -108,8 +108,8 @@ class EventDetailsScreen extends StatelessWidget {
                         children: [
                           _buildChip(
                             category,
-                            const Color(0xFFE3F2FD),
-                            const Color(0xFF1E88E5),
+                            const Color(0xFF3A4F9B).withOpacity(0.1),
+                            const Color(0xFF3A4F9B),
                           ),
                           const SizedBox(width: 8),
                           _buildChip(
@@ -142,12 +142,12 @@ class EventDetailsScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.blue[50],
+                                color: const Color(0xFF3A4F9B).withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
                                 Icons.calendar_today_rounded,
-                                color: Color(0xFF1E88E5),
+                                color: Color(0xFF3A4F9B),
                                 size: 24,
                               ),
                             ),
@@ -181,13 +181,13 @@ class EventDetailsScreen extends StatelessWidget {
                                 vertical: 8,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE3F2FD),
+                                color: const Color(0xFF3A4F9B).withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 'Add to Calendar',
                                 style: GoogleFonts.inter(
-                                  color: const Color(0xFF1E88E5),
+                                  color: const Color(0xFF3A4F9B),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 11,
                                 ),
@@ -265,7 +265,7 @@ class EventDetailsScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: isRegistered
                     ? Colors.grey
-                    : const Color(0xFF1E88E5),
+                    : const Color(0xFF3A4F9B),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
@@ -274,7 +274,7 @@ class EventDetailsScreen extends StatelessWidget {
                 elevation: 4,
                 shadowColor: isRegistered
                     ? Colors.transparent
-                    : const Color(0xFF1E88E5).withOpacity(0.4),
+                    : const Color(0xFF3A4F9B).withOpacity(0.4),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

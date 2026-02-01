@@ -17,6 +17,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _obscurePassword = true;
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -36,9 +37,16 @@ class _SignupScreenState extends State<SignupScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        String errorMessage = e.toString();
+        if (errorMessage.startsWith('Exception: ')) {
+          errorMessage = errorMessage.replaceFirst('Exception: ', '');
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     }
   }
@@ -114,10 +122,22 @@ class _SignupScreenState extends State<SignupScreen> {
               _buildLabel('Password'),
               TextFormField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 decoration: _inputDecoration(
                   'Min. 8 characters',
-                  icon: Icons.visibility_outlined,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
                 ),
                 validator: (v) => v!.length < 6 ? 'Min 6 chars' : null,
               ),
@@ -130,7 +150,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: ElevatedButton(
                     onPressed: auth.isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppConstants.primaryColor,
+                      backgroundColor: const Color(0xFF3A4F9B),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -161,7 +181,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       child: const Text(
                         "Sign In",
                         style: TextStyle(
-                          color: AppConstants.primaryColor,
+                          color: Color(0xFF3A4F9B),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -186,7 +206,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint, {IconData? icon}) {
+  InputDecoration _inputDecoration(String hint, {Widget? suffixIcon}) {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(color: Colors.grey),
@@ -203,9 +223,9 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppConstants.primaryColor),
+        borderSide: const BorderSide(color: Color(0xFF3A4F9B)),
       ),
-      suffixIcon: icon != null ? Icon(icon, color: Colors.grey) : null,
+      suffixIcon: suffixIcon,
     );
   }
 }

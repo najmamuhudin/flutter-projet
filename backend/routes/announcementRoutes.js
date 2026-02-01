@@ -30,4 +30,37 @@ router.post('/', protect, admin, async (req, res) => {
     }
 });
 
+// Update announcement (Admin only)
+router.put('/:id', protect, admin, async (req, res) => {
+    try {
+        const announcement = await Announcement.findById(req.params.id);
+        if (!announcement) {
+            return res.status(404).json({ message: 'Announcement not found' });
+        }
+
+        const updatedAnnouncement = await Announcement.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+        res.json(updatedAnnouncement);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// Delete announcement (Admin only)
+router.delete('/:id', protect, admin, async (req, res) => {
+    try {
+        const announcement = await Announcement.findById(req.params.id);
+        if (!announcement) {
+            return res.status(404).json({ message: 'Announcement not found' });
+        }
+        await announcement.deleteOne();
+        res.json({ message: 'Announcement removed' });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
 module.exports = router;

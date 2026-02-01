@@ -85,7 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         const CircleAvatar(
           radius: 22,
-          backgroundColor: Colors.blue,
+          backgroundColor: Color(0xFF3A4F9B),
           child: Icon(Icons.person, color: Colors.white),
         ),
         const SizedBox(width: 8),
@@ -123,7 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             value: stats?['activeEvents']?.toString() ?? "18",
             subtitle: "Live Now",
             icon: Icons.calendar_today,
-            subtitleColor: Colors.blue,
+            subtitleColor: Color(0xFF3A4F9B),
           ),
         ),
       ],
@@ -147,7 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(title, style: _greyText()),
-              Icon(icon, color: Colors.blue),
+              Icon(icon, color: Color(0xFF3A4F9B)),
             ],
           ),
           const SizedBox(height: 16),
@@ -223,7 +223,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           height: 52,
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              backgroundColor: Color(0xFF3A4F9B),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -314,7 +314,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   toY: (i + 2).toDouble(),
                   width: 18,
                   borderRadius: BorderRadius.circular(6),
-                  color: i == 5 ? Colors.blue : Colors.blue.shade200,
+                  color: i == 5
+                      ? Color(0xFF3A4F9B)
+                      : Color(0xFF3A4F9B).withOpacity(0.5),
                 ),
               ],
             ),
@@ -333,7 +335,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: const [
           _ActivityTile(
             icon: Icons.check_circle,
-            iconColor: Colors.blue,
+            iconColor: Color(0xFF3A4F9B),
             title: "Annual Career Fair",
             subtitle: "Event approved and published by Admin Sarah",
             time: "2 hours ago",
@@ -357,7 +359,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: _ActivityTile(
             icon: activity['icon'] == 'event' ? Icons.check_circle : Icons.chat,
             iconColor: activity['icon'] == 'event'
-                ? Colors.blue
+                ? Color(0xFF3A4F9B)
                 : Colors.purple,
             title: activity['title'] ?? "Untitled",
             subtitle: activity['subtitle'] ?? "",
@@ -400,14 +402,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+              colors: [Color(0xFF3A4F9B), Color(0xFF1E2F6B)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.blue.withOpacity(0.3),
+                color: Color(0xFF3A4F9B).withOpacity(0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),
@@ -484,12 +486,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: 64,
             width: 64,
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+              color: Color(0xFF3A4F9B).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.event_available,
-              color: Colors.blue,
+              color: Color(0xFF3A4F9B),
+
               size: 30,
             ),
           ),

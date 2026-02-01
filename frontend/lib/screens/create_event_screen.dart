@@ -8,7 +8,8 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class CreateEventScreen extends StatefulWidget {
-  const CreateEventScreen({super.key});
+  final Map<String, dynamic>? event;
+  const CreateEventScreen({super.key, this.event});
 
   @override
   State<CreateEventScreen> createState() => _CreateEventScreenState();
@@ -17,11 +18,11 @@ class CreateEventScreen extends StatefulWidget {
 class _CreateEventScreenState extends State<CreateEventScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final _titleController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _dateController = TextEditingController();
-  final _timeController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late TextEditingController _titleController;
+  late TextEditingController _locationController;
+  late TextEditingController _dateController;
+  late TextEditingController _timeController;
+  late TextEditingController _descriptionController;
 
   String _category = "Academic";
   bool _pushNotification = true;
@@ -30,6 +31,36 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   XFile? _image;
   Uint8List? _webImage;
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.event?['title']);
+    _locationController = TextEditingController(
+      text: widget.event?['location'],
+    );
+    _dateController = TextEditingController(text: widget.event?['date']);
+    _timeController = TextEditingController(text: widget.event?['time']);
+    _descriptionController = TextEditingController(
+      text: widget.event?['description'],
+    );
+    if (widget.event != null) {
+      _category = widget.event!['category'] ?? "Academic";
+      // Assuming other fields might be in event data
+      _pushNotification = widget.event!['pushNotification'] ?? true;
+      _enableRSVP = widget.event!['rsvp'] ?? false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _locationController.dispose();
+    _dateController.dispose();
+    _timeController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage() async {
     final XFile? selected = await _picker.pickImage(
@@ -121,18 +152,26 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      leading: TextButton(
+      leading: IconButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text("Cancel"),
+        icon: const Icon(Icons.close, color: Colors.black),
       ),
-      title: const Text("Create Event", style: TextStyle(color: Colors.black)),
+      title: Text(
+        widget.event == null ? "Create Event" : "Update Event",
+        style: const TextStyle(color: Colors.black),
+      ),
       centerTitle: true,
       actions: [
+        if (widget.event != null)
+          IconButton(
+            onPressed: _deleteEvent,
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+          ),
         TextButton(
           onPressed: _isSubmitting ? null : _submit,
-          child: const Text(
-            "Publish",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          child: Text(
+            widget.event == null ? "Publish" : "Save",
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -160,13 +199,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   borderRadius: BorderRadius.circular(16),
                   child: kIsWeb
                       ? (_webImage != null
-                          ? Image.memory(
-                              _webImage!,
-                              width: double.infinity,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            )
-                          : const Center(child: CircularProgressIndicator()))
+                            ? Image.memory(
+                                _webImage!,
+                                width: double.infinity,
+                                height: 200,
+                                fit: BoxFit.cover,
+                              )
+                            : const Center(child: CircularProgressIndicator()))
                       : Image.file(
                           File(_image!.path),
                           width: double.infinity,
@@ -179,8 +218,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundColor: Colors.blue.withOpacity(0.1),
-                      child: const Icon(Icons.camera_alt, color: Colors.blue),
+                      backgroundColor: Color(0xFF3A4F9B).withOpacity(0.1),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Color(0xFF3A4F9B),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     const Text(
@@ -195,7 +237,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     const SizedBox(height: 14),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Color(0xFF3A4F9B),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -225,15 +267,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             selected: selected,
             onSelected: (_) => setState(() => _category = c),
             backgroundColor: Colors.white,
-            selectedColor: Colors.blue.withOpacity(0.15),
+            selectedColor: Color(0xFF3A4F9B).withOpacity(0.15),
             side: BorderSide(
-              color: selected ? Colors.blue : Colors.grey.shade300,
+              color: selected ? Color(0xFF3A4F9B) : Colors.grey.shade300,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
             labelStyle: TextStyle(
-              color: selected ? Colors.blue : Colors.black,
+              color: selected ? Color(0xFF3A4F9B) : Colors.black,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -338,6 +380,43 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     );
   }
 
+  void _deleteEvent() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Delete Event"),
+        content: const Text("Are you sure you want to delete this event?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _isSubmitting = true);
+    try {
+      final eventProvider = Provider.of<EventProvider>(context, listen: false);
+      await eventProvider.deleteEvent(widget.event!['_id']);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
   // ================= SUBMIT =================
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -347,7 +426,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     try {
       final eventProvider = Provider.of<EventProvider>(context, listen: false);
 
-      String? imageUrl;
+      String? imageUrl = widget.event?['imageUrl'];
       if (_image != null) {
         final bytes = _webImage ?? await _image!.readAsBytes();
         imageUrl = await eventProvider.uploadImage(bytes, _image!.name);
@@ -355,7 +434,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
       if (!mounted) return;
 
-      await eventProvider.addEvent({
+      final eventData = {
         "title": _titleController.text,
         "category": _category,
         "date": _dateController.text,
@@ -365,7 +444,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         "pushNotification": _pushNotification,
         "rsvp": _enableRSVP,
         "imageUrl": imageUrl,
-      });
+      };
+
+      if (widget.event == null) {
+        await eventProvider.addEvent(eventData);
+      } else {
+        await eventProvider.updateEvent(widget.event!['_id'], eventData);
+      }
 
       if (mounted) Navigator.pop(context);
     } catch (e) {

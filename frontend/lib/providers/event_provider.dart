@@ -45,4 +45,23 @@ class EventProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<void> updateEvent(String id, Map<String, dynamic> eventData) async {
+    try {
+      await _eventService.updateEvent(id, eventData);
+      await fetchEvents();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteEvent(String id) async {
+    try {
+      await _eventService.deleteEvent(id);
+      _events.removeWhere((e) => e['_id'] == id);
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

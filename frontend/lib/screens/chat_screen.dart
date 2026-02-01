@@ -12,12 +12,18 @@ class ChatScreen extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text('Student Affairs', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(
+              'Student Affairs',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
             Row(
               children: [
                 Icon(Icons.circle, size: 8, color: Colors.green),
                 SizedBox(width: 4),
-                Text('Online', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(
+                  'Online',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
               ],
             ),
           ],
@@ -49,26 +55,29 @@ class ChatScreen extends StatelessWidget {
               ),
             ),
           ),
-          
+
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: const [
                 _ChatBubble(
                   isMe: false,
-                  message: 'Hello! Welcome to the University Support Center. How can we help you with your event registration today?',
+                  message:
+                      'Hello! Welcome to the University Support Center. How can we help you with your event registration today?',
                   time: '10:15 AM',
                   sender: 'Student Affairs',
                 ),
                 _ChatBubble(
                   isMe: true,
-                  message: 'I have a question about the document requirements for the upcoming campus career fair. Do I need to upload my resume now?',
+                  message:
+                      'I have a question about the document requirements for the upcoming campus career fair. Do I need to upload my resume now?',
                   time: '10:18 AM',
                   sender: 'Me',
                 ),
                 _ChatBubble(
                   isMe: false,
-                  message: 'Yes, please. We also need a copy of your current student ID for verification. You can attach it right here.',
+                  message:
+                      'Yes, please. We also need a copy of your current student ID for verification. You can attach it right here.',
                   time: '10:20 AM',
                   sender: 'Student Affairs',
                   avatarUrl: 'https://i.pravatar.cc/100?img=5',
@@ -82,17 +91,24 @@ class ChatScreen extends StatelessWidget {
                 _ImageBubble(),
                 SizedBox(height: 8),
                 Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 4.0),
-                      child: Row(
-                        children: [
-                             Icon(Icons.more_horiz, color: Colors.blue),
-                             SizedBox(width: 8),
-                             Text("Admin is typing...", style: TextStyle(color: Colors.blue, fontStyle: FontStyle.italic)),
-                        ],
-                      ),
-                    )),
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 4.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.more_horiz, color: Color(0xFF3A4F9B)),
+                        SizedBox(width: 8),
+                        Text(
+                          "Admin is typing...",
+                          style: TextStyle(
+                            color: Color(0xFF3A4F9B),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -119,9 +135,9 @@ class ChatScreen extends StatelessWidget {
             child: Row(
               children: [
                 CircleAvatar(
-                    radius: 18,
-                    backgroundColor: AppTheme.primaryColor.withOpacity(0.8),
-                    child: const Icon(Icons.add, color: Colors.white, size: 20),
+                  radius: 18,
+                  backgroundColor: AppTheme.primaryColor.withOpacity(0.8),
+                  child: const Icon(Icons.add, color: Colors.white, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -134,7 +150,10 @@ class ChatScreen extends StatelessWidget {
                     ),
                     child: const Align(
                       alignment: Alignment.centerLeft,
-                      child: Text('Type a message...', style: TextStyle(color: Colors.grey)),
+                      child: Text(
+                        'Type a message...',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                   ),
                 ),
@@ -180,32 +199,54 @@ class _ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: isMe
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
       children: [
         if (!isMe) ...[
-            Padding(
-              padding: const EdgeInsets.only(left: 0, bottom: 4),
-              child: Text('$sender • $time', style: TextStyle(color: AppTheme.subtitleColor, fontSize: 10, fontWeight: FontWeight.bold)),
+          Padding(
+            padding: const EdgeInsets.only(left: 0, bottom: 4),
+            child: Text(
+              '$sender • $time',
+              style: TextStyle(
+                color: AppTheme.subtitleColor,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+          ),
         ] else ...[
-             Padding(
-              padding: const EdgeInsets.only(right: 0, bottom: 4),
-              child: Text('$sender • $time', style: TextStyle(color: AppTheme.subtitleColor, fontSize: 10, fontWeight: FontWeight.bold)),
+          Padding(
+            padding: const EdgeInsets.only(right: 0, bottom: 4),
+            child: Text(
+              '$sender • $time',
+              style: TextStyle(
+                color: AppTheme.subtitleColor,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+          ),
         ],
         Row(
-          mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment: isMe
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             if (!isMe) ... [
-                 CircleAvatar(
-                     radius: 16,
-                     backgroundColor: const Color(0xFF2D3142), // Dark, almost black
-                     backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-                     child: avatarUrl == null ? const SizedBox() : null, // Empty for now if no url
-                 ),
-                 const SizedBox(width: 8),
-             ],
+            if (!isMe) ...[
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: const Color(0xFF2D3142), // Dark, almost black
+                backgroundImage: avatarUrl != null
+                    ? NetworkImage(avatarUrl!)
+                    : null,
+                child: avatarUrl == null
+                    ? const SizedBox()
+                    : null, // Empty for now if no url
+              ),
+              const SizedBox(width: 8),
+            ],
             Flexible(
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -218,19 +259,26 @@ class _ChatBubble extends StatelessWidget {
                     bottomRight: isMe ? Radius.zero : const Radius.circular(16),
                   ),
                   boxShadow: [
-                    if (!isMe) BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2)),
+                    if (!isMe)
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
                   ],
                 ),
                 child: Text(
                   message,
-                  style: isMe ? const TextStyle(color: Colors.white) : const TextStyle(color: Colors.black87),
+                  style: isMe
+                      ? const TextStyle(color: Colors.white)
+                      : const TextStyle(color: Colors.black87),
                 ),
               ),
             ),
-             if (isMe) ... [
-                 const SizedBox(width: 8),
-                 // Avatar removed to match screenshot
-             ],
+            if (isMe) ...[
+              const SizedBox(width: 8),
+              // Avatar removed to match screenshot
+            ],
           ],
         ),
         const SizedBox(height: 16),
@@ -245,45 +293,68 @@ class _ImageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.only(left: 40, right: 0, bottom: 16), // Offset for avatar
-        child: Container(
-            height: 150,
-            width: double.infinity,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: const LinearGradient(colors: [Colors.orange, Colors.orangeAccent]),
-            ),
-            child: Stack(
-                children: [
-                    // Mock ID card visual
-                    Positioned(
-                        top: 20, left: 20, right: 20, bottom: 20,
-                        child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
-                                borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                                children: [
-                                    const SizedBox(width: 10),
-                                    Expanded(child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                            Container(height: 4, width: 40, color: Colors.black26),
-                                            const SizedBox(height: 4),
-                                            Container(height: 4, width: 60, color: Colors.black12),
-                                        ],
-                                    )),
-                                    Container(width: 40, height: 50, color: Colors.blue[100]),
-                                    const SizedBox(width: 10),
-                                ],
-                            ),
-                        ),
-                    )
-                ],
-            ),
+      padding: const EdgeInsets.only(
+        left: 40,
+        right: 0,
+        bottom: 16,
+      ), // Offset for avatar
+      child: Container(
+        height: 150,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            colors: [Colors.orange, Colors.orangeAccent],
+          ),
         ),
+        child: Stack(
+          children: [
+            // Mock ID card visual
+            Positioned(
+              top: 20,
+              left: 20,
+              right: 20,
+              bottom: 20,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 4,
+                            width: 40,
+                            color: Colors.black26,
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            height: 4,
+                            width: 60,
+                            color: Colors.black12,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 40,
+                      height: 50,
+                      color: const Color(0xFF3A4F9B).withOpacity(0.1),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

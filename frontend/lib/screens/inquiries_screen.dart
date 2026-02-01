@@ -103,7 +103,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
       elevation: 0,
       leading: const Padding(
         padding: EdgeInsets.all(12),
-        child: Icon(Icons.forum, color: Colors.blue, size: 28),
+        child: Icon(Icons.forum, color: Color(0xFF3A4F9B), size: 28),
       ),
       title: const Text(
         "Inquiries",
@@ -148,7 +148,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
           decoration: InputDecoration(
             hintText: "Search students or subjects",
             hintStyle: TextStyle(color: Colors.grey.shade500),
-            prefixIcon: const Icon(Icons.search, color: Colors.blue),
+            prefixIcon: const Icon(Icons.search, color: Color(0xFF3A4F9B)),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(vertical: 15),
           ),
@@ -181,7 +181,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? Colors.blue : Colors.white,
+          color: selected ? Color(0xFF3A4F9B) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             if (!selected)
@@ -246,11 +246,11 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  backgroundColor: Color(0xFF3A4F9B).withOpacity(0.1),
                   child: Text(
                     name.isNotEmpty ? name[0].toUpperCase() : '?',
                     style: const TextStyle(
-                      color: Colors.blue,
+                      color: Color(0xFF3A4F9B),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -302,7 +302,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue,
+                color: Color(0xFF3A4F9B),
               ),
             ),
             const SizedBox(height: 8),
@@ -340,7 +340,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Color(0xFF3A4F9B),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -388,18 +388,21 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
             ),
           ],
           border: active
-              ? Border.all(color: Colors.blue.withOpacity(0.3), width: 1.5)
+              ? Border.all(
+                  color: Color(0xFF3A4F9B).withOpacity(0.3),
+                  width: 1.5,
+                )
               : null,
         ),
         child: Row(
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: Colors.blue.withOpacity(0.1),
+              backgroundColor: Color(0xFF3A4F9B).withOpacity(0.1),
               child: Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
                 style: const TextStyle(
-                  color: Colors.blue,
+                  color: Color(0xFF3A4F9B),
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
@@ -438,7 +441,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
                         child: Text(
                           subject,
                           style: const TextStyle(
-                            color: Colors.blue,
+                            color: Color(0xFF3A4F9B),
                             fontWeight: FontWeight.w600,
                           ),
                           overflow: TextOverflow.ellipsis,

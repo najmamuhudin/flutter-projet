@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF1E88E5); // Blue from screenshots
-  static const Color accentColor = Color(0xFF64B5F6);
+  static const Color primaryColor = Color(0xFF3A4F9B); // New brand color
+  static const Color accentColor = Color(0xFF5C70B8);
   static const Color backgroundColor = Color(0xFFF5F7FA);
   static const Color cardColor = Colors.white;
   static const Color textColor = Color(0xFF2D3142);
@@ -17,10 +17,14 @@ class AppTheme {
     displayMedium: TextStyle(color: textColor, fontWeight: FontWeight.bold),
     displaySmall: TextStyle(color: textColor, fontWeight: FontWeight.bold),
     headlineMedium: TextStyle(color: textColor, fontWeight: FontWeight.w600),
-    titleLarge: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 18),
+    titleLarge: TextStyle(
+      color: textColor,
+      fontWeight: FontWeight.w600,
+      fontSize: 18,
+    ),
     bodyLarge: TextStyle(color: textColor),
     bodyMedium: TextStyle(color: textColor),
-    titleMedium: TextStyle(color: subtitleColor), 
+    titleMedium: TextStyle(color: subtitleColor),
   );
 
   static ThemeData get lightTheme {
@@ -44,7 +48,9 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           padding: EdgeInsets.symmetric(vertical: 16),
           textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),

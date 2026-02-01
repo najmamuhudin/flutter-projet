@@ -7,6 +7,7 @@ import '../providers/navigation_provider.dart';
 import '../utils/constants.dart';
 import '../utils/image_helper.dart';
 import 'event_details_screen.dart';
+import 'create_event_screen.dart';
 
 class AdminEventsScreen extends StatefulWidget {
   const AdminEventsScreen({super.key});
@@ -174,23 +175,102 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                 children: [
                   Align(
                     alignment: Alignment.topRight,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        category,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF3A4F9B),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            category,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF3A4F9B),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            cardColor: Colors.white,
+                            iconTheme: const IconThemeData(color: Colors.white),
+                          ),
+                          child: PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              if (value == 'edit') {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        CreateEventScreen(event: event),
+                                  ),
+                                );
+                              } else if (value == 'delete') {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text("Delete Event"),
+                                    content: const Text(
+                                      "Are you sure you want to delete this event?",
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, false),
+                                        child: const Text("Cancel"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, true),
+                                        child: const Text(
+                                          "Delete",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  await Provider.of<EventProvider>(
+                                    context,
+                                    listen: false,
+                                  ).deleteEvent(event['_id']);
+                                }
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: ListTile(
+                                  leading: Icon(
+                                    Icons.edit,
+                                    color: Color(0xFF3A4F9B),
+                                  ),
+                                  title: Text('Edit'),
+                                ),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: ListTile(
+                                  leading: Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  title: Text('Delete'),
+                                ),
+                              ),
+                            ],
+                            icon: const Icon(Icons.more_vert),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Column(

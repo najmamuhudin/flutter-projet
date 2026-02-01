@@ -35,8 +35,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final List<Widget> screens = isAdmin
         ? [
             const DashboardScreen(),
-            const InquiriesScreen(),
+            const AnnouncementsScreen(), // Added
             const AdminEventsScreen(),
+            const InquiriesScreen(),
             const ProfileScreen(),
           ]
         : [
@@ -54,12 +55,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               label: "Dashboard",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.forum_outlined),
-              label: "Inbox",
+              icon: Icon(Icons.campaign_outlined), // Changed
+              label: "Updates",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.event_note_outlined),
               label: "My Events",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.forum_outlined),
+              label: "Inbox",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),

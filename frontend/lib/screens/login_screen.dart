@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _obscurePassword = true;
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -33,9 +34,16 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        String errorMessage = e.toString();
+        if (errorMessage.startsWith('Exception: ')) {
+          errorMessage = errorMessage.replaceFirst('Exception: ', '');
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     }
   }
@@ -60,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 70,
                     width: 70,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1A73E8),
+                      color: const Color(0xFF3A4F9B),
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -132,9 +140,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
                     hintText: "Please enter your password",
                     filled: true,
                     fillColor: Colors.white,
@@ -160,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {},
                     child: const Text(
                       "Forgot Password?",
-                      style: TextStyle(color: Color(0xFF1A73E8)),
+                      style: TextStyle(color: Color(0xFF3A4F9B)),
                     ),
                   ),
                 ),
@@ -172,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   builder: (context, auth, _) => ElevatedButton(
                     onPressed: auth.isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A73E8),
+                      backgroundColor: const Color(0xFF3A4F9B),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -215,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(width: 20),
                     _socialButton(
                       icon: FontAwesomeIcons.facebookF,
-                      color: const Color(0xFF4267B2),
+                      color: const Color(0xFF3A4F9B),
                       onTap: () => _handleSocialLogin("Facebook"),
                     ),
                     const SizedBox(width: 20),
@@ -246,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         "Create an Account",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A73E8),
+                          color: Color(0xFF3A4F9B),
                         ),
                       ),
                     ),
