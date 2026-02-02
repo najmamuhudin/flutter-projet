@@ -3,27 +3,30 @@ const Event = require('../models/Event');
 const Inquiry = require('../models/Inquiry');
 const Announcement = require('../models/Announcement');
 
-// @desc    Get dashboard stats
-// @route   GET /api/admin/stats
-// @access  Private/Admin
+/**
+ * @desc    Get dashboard stats
+ * @route   GET /api/admin/stats
+ * @access  Private/Admin
+ * @returns {Object} JSON object containing totalStudents, activeEvents, pendingInquiries, and recentActivity list
+ */
 const getDashboardStats = async (req, res) => {
     try {
+        // Count total number of students
         const totalStudents = await User.countDocuments({ role: 'student' });
+        // Count total number of events
         const activeEvents = await Event.countDocuments();
+        // Count inquiries that are still pending
         const pendingInquiries = await Inquiry.countDocuments({ status: 'PENDING' });
 
-        // For engagement overview (chart), we can get counts per day for the last 7 days
-        // Simplified: just some dummy data or actual counts if preferred.
-        // Let's try to get actual counts of events created in the last 7 days.
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
+        // Get recent 5 events to show in activity feed
         const recentEvents = await Event.find().sort({ createdAt: -1 }).limit(5).populate('user', 'name');
+        // Get recent 5 inquiries to show in activity feed
         const recentInquiries = await Inquiry.find().sort({ createdAt: -1 }).limit(5).populate('user', 'name');
 
-        // Recent activity combines events and inquiries
+        // Combined Recent Activity Feed
         const recentActivity = [];
 
+        // Format recent events for the feed
         recentEvents.forEach(event => {
             recentActivity.push({
                 type: 'event',
@@ -34,6 +37,7 @@ const getDashboardStats = async (req, res) => {
             });
         });
 
+        // Format recent inquiries for the feed
         recentInquiries.forEach(inquiry => {
             recentActivity.push({
                 type: 'inquiry',
@@ -44,14 +48,14 @@ const getDashboardStats = async (req, res) => {
             });
         });
 
-        // Sort activity by time
+        // Sort the combined activity by time (newest first)
         recentActivity.sort((a, b) => b.time - a.time);
 
         res.json({
             totalStudents,
             activeEvents,
             pendingInquiries,
-            recentActivity: recentActivity.slice(0, 5)
+            recentActivity: recentActivity.slice(0, 5) // Return only the top 5 most recent activities
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
